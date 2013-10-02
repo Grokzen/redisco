@@ -4,7 +4,6 @@ from dateutil.tz import tzutc
 import redisco
 from redisco.containers import Set, List, SortedSet, NonPersistentList
 from attributes import *
-from key import Key
 from managers import ManagerDescriptor, Manager
 from exceptions import FieldValidationError, MissingID, BadKeyError, WatchError
 from attributes import Counter
@@ -150,12 +149,13 @@ def _initialize_counters(model_class, name, bases, attrs):
             model_class._counters.append(k)
 
 
-def _initialize_key(model_class, name):
+def _initialize_keys(model_class, name):
     """
     Initializes the key of the model.
     """
-    model_class._key = Key(model_class._meta['key'] or name)
-
+    model_class._key = model_class._meta['key'] or name
+    model_class._all_key = u"%s:all" % model_class._key
+    model_class._id_gen_key = u"%s:id" % model_class._key
 
 def _initialize_manager(model_class):
     """
@@ -208,7 +208,7 @@ class ModelBase(type):
         _initialize_counters(cls, name, bases, attrs)
         _initialize_lists(cls, name, bases, attrs)
         _initialize_indices(cls, name, bases, attrs)
-        _initialize_key(cls, name)
+        _initialize_keys(cls, name)
         _initialize_manager(cls)
         # if targeted by a reference field using a string,
         # override for next try
@@ -339,9 +339,9 @@ class Model(object):
         True
         """
         if att is not None:
-            return self._key[self.id][att]
+            return "%s:%s" % (self._instance_key, att)
         else:
-            return self._key[self.id]
+            return self._instance_key
 
     def delete(self):
         """Deletes the object from the datastore."""
@@ -448,7 +448,8 @@ class Model(object):
         Setting the id for the object will fetch it from the datastorage.
         """
         self._id = str(val)
-        stored_attrs = self.db.hgetall(self.key())
+        self._set_instance_keys()
+        stored_attrs = self.db.hgetall(self._instance_key)
         attrs = self.attributes.values()
         for att in attrs:
             if att.name in stored_attrs and not isinstance(att, Counter):
@@ -516,8 +517,12 @@ class Model(object):
     @classmethod
     def exists(cls, id):
         """Checks if the model with id exists."""
-        return bool((cls._meta['db'] or redisco.get_client()).exists(cls._key[str(id)]) or
-                    (cls._meta['db'] or redisco.get_client()).sismember(cls._key['all'], str(id)))
+        _conn = cls._meta['db'] or redisco.get_client()
+        return bool(_conn.exists(cls.instance_key(id)) or _conn.sismember(cls._all_key, str(id)))
+
+    @classmethod
+    def instance_key(cls, id):
+        return u"%s:%s" % (cls._key, id)
 
     ###################
     # Private methods #
@@ -525,7 +530,8 @@ class Model(object):
 
     def _initialize_id(self):
         """Initializes the id of the instance."""
-        self._id = str(self.db.incr(self._key['id']))
+        self._id = str(self.db.incr(self._id_gen_key))
+        self._set_instance_keys()
 
     def _write(self, _new=False):
         """Writes the values of the attributes to the datastore.
@@ -563,13 +569,13 @@ class Model(object):
                         h[index] = unicode(v)
                     except UnicodeError:
                         h[index] = unicode(v.decode('utf-8'))
-        pipeline.delete(self.key())
+        pipeline.delete(self._instance_key)
         if h:
-            pipeline.hmset(self.key(), h)
+            pipeline.hmset(self._instance_key, h)
 
         # lists
         for k, v in self.lists.iteritems():
-            l = List(self.key()[k], pipeline=pipeline)
+            l = List(self.key(att=k), pipeline=pipeline)
             l.clear()
             values = getattr(self, k)
             if values:
@@ -579,6 +585,11 @@ class Model(object):
                     l.extend(values)
         pipeline.execute()
 
+    def _set_instance_keys(self):
+        self._instance_key = self.instance_key(self._id)
+        self._indices_key = u"%s:%s:_indices" % (self._key, self._id)
+        self._zindices_key = u"%s:%s:_zindices" % (self._key, self._id)
+
     ##############
     # Membership #
     ##############
@@ -587,13 +598,13 @@ class Model(object):
         """Adds the id of the object to the set of all objects of the same
         class.
         """
-        Set(self._key['all'], pipeline=pipeline).add(self.id)
+        Set(self._all_key, pipeline=pipeline).add(self.id)
 
     def _delete_membership(self, pipeline=None):
         """Removes the id of the object to the set of all objects of the
         same class.
         """
-        Set(self._key['all'], pipeline=pipeline).remove(self.id)
+        Set(self._all_key, pipeline=pipeline).remove(self.id)
 
     ############
     # INDICES! #
@@ -621,26 +632,26 @@ class Model(object):
         t, index = index
         if t == 'attribute':
             pipeline.sadd(index, self.id)
-            pipeline.sadd(self.key()['_indices'], index)
+            pipeline.sadd(self._indices_key, index)
         elif t == 'list':
             for i in index:
                 pipeline.sadd(i, self.id)
-                pipeline.sadd(self.key()['_indices'], i)
+                pipeline.sadd(self._indices_key, i)
         elif t == 'sortedset':
             zindex, index = index
             pipeline.sadd(index, self.id)
-            pipeline.sadd(self.key()['_indices'], index)
+            pipeline.sadd(self._indices_key, index)
             descriptor = self.attributes[att]
             score = descriptor.typecast_for_storage(getattr(self, att))
             pipeline.zadd(zindex, self.id, score)
-            pipeline.sadd(self.key()['_zindices'], zindex)
+            pipeline.sadd(self._zindices_key, zindex)
 
     def _delete_from_indices(self, pipeline):
         """Deletes the object's id from the sets(indices) it has been added
         to and removes its list of indices (used for housekeeping).
         """
-        s = Set(self.key()['_indices'], pipeline=self.db)
-        z = Set(self.key()['_zindices'], pipeline=self.db)
+        s = Set(self._indices_key, pipeline=self.db)
+        z = Set(self._zindices_key, pipeline=self.db)
         for index in s.members:
             pipeline.srem(index, self.id)
         for index in z.members:
@@ -683,11 +694,12 @@ class Model(object):
         return ('list', [self._index_key_for_attr_val(att, e) for e in val])
 
     def _tuple_for_index_key_attr_zset(self, att, val, sval):
+        key = "%s:%s" % (self._key, att)
         return ('sortedset',
-                (self._key[att], self._index_key_for_attr_val(att, sval)))
+                (key, self._index_key_for_attr_val(att, sval)))
 
     def _index_key_for_attr_val(self, att, val):
-        return self._key[att][val]
+        return "%s:%s:%s" % (self._key, att, val)
 
     ##################
     # Python methods #

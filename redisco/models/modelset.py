@@ -11,7 +11,7 @@ from attributes import ZINDEXABLE
 class ModelSet(Set):
     def __init__(self, model_class):
         self.model_class = model_class
-        self.key = model_class._key['all']
+        self.key = model_class._all_key
         # We access directly _meta as .db is a property and should be
         # access from an instance, not a Class
         self._db = model_class._meta['db'] or redisco.get_client()
@@ -359,7 +359,7 @@ class ModelSet(Set):
             att, op = k.split('__')
         except ValueError:
             raise ValueError("zfilter should have an operator.")
-        index = self.model_class._key[att]
+        index = "%s:%s" % (self.model_class._key, att)
         desc = self.model_class._attributes[att]
         zset = SortedSet(index, db=self.db)
         limit, offset = self._get_limit_and_offset()
@@ -421,7 +421,7 @@ class ModelSet(Set):
             else:
                 desc = False
             new_set_key = "%s#%s.%s" % (old_set_key, ordering, id(self))
-            by = "%s->%s" % (self.model_class._key['*'], ordering)
+            by = "%s:*->%s" % (self.model_class._key, ordering)
             self.db.sort(old_set_key,
                          by=by,
                          store=new_set_key,
@@ -489,7 +489,8 @@ class ModelSet(Set):
         desc = self.model_class._attributes.get(index)
         if desc:
             value = desc.typecast_for_storage(value)
-        return self.model_class._key[index][value]
+        _k = u"%s:%s:%s" % (self.model_class._key, index, value)
+        return _k
 
     def _clone(self):
         """

@@ -280,7 +280,7 @@ class ListField(object):
             if instance.is_new():
                 val = self.default
             else:
-                key = instance.key()[self.name]
+                key = instance.key(att=self.name)
                 val = List(key).members
             if val is not None:
                 klass = self.value_type()

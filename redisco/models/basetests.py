@@ -130,11 +130,11 @@ class ModelTestCase(RediscoTestCase):
     def test_indices(self):
         person = Person.objects.create(first_name="Granny", last_name="Goose")
         db = person.db
-        key = person.key()
+        key = person.key(att='_indices')
         ckey = Person._key
 
         index = 'Person:first_name:%s' % "Granny"
-        self.assertTrue(index in db.smembers(key['_indices']))
+        self.assertTrue(index in db.smembers(key))
         self.assertTrue("1" in db.smembers(index))
 
     def test_delete(self):
@@ -561,7 +561,7 @@ class DateFieldTestCase(RediscoTestCase):
     def test_indexes(self):
         d = date.today()
         Event.objects.create(name="Event #1", date=d)
-        self.assertTrue('1' in self.client.smembers(Event._key['all']))
+        self.assertTrue('1' in self.client.smembers(Event._all_key))
         # zfilter index
         self.assertTrue(self.client.exists("Event:date"))
         # other field indices
