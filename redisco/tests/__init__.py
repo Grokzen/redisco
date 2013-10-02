@@ -28,7 +28,7 @@ def all_tests():
     suite.addTest(unittest.makeSuite(ReferenceFieldTestCase))
     suite.addTest(unittest.makeSuite(DateTimeFieldTestCase))
     suite.addTest(unittest.makeSuite(CounterFieldTestCase))
-    suite.addTest(unittest.makeSuite(MutexTestCase))
+    #suite.addTest(unittest.makeSuite(MutexTestCase))
     suite.addTest(unittest.makeSuite(HashTestCase))
     suite.addTest(unittest.makeSuite(CharFieldTestCase))
     return suite
