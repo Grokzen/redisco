@@ -339,7 +339,7 @@ class Model(object):
         True
         """
         if att is not None:
-            return "%s:%s" % (self._instance_key, att)
+            return u"%s:%s" % (self._instance_key, att)
         else:
             return self._instance_key
 
@@ -442,19 +442,6 @@ class Model(object):
             raise MissingID
         return self._id
 
-    @id.setter
-    def id(self, val):
-        """
-        Setting the id for the object will fetch it from the datastorage.
-        """
-        self._id = str(val)
-        self._set_instance_keys()
-        stored_attrs = self.db.hgetall(self._instance_key)
-        attrs = self.attributes.values()
-        for att in attrs:
-            if att.name in stored_attrs and not isinstance(att, Counter):
-                att.__set__(self, att.typecast_for_read(stored_attrs[att.name]))
-
     @property
     def attributes(self):
         """Return the attributes of the model.
@@ -510,6 +497,12 @@ class Model(object):
         """Returns the mapping of the counters."""
         return self._counters
 
+    def load_attributes_from_redis_raw_data(self, stored_attrs):
+        attrs = self.attributes.values()
+        for att in attrs:
+            if att.name in stored_attrs and not isinstance(att, Counter):
+                att.__set__(self, att.typecast_for_read(stored_attrs[att.name]))
+
     #################
     # Class Methods #
     #################
@@ -522,7 +515,26 @@ class Model(object):
 
     @classmethod
     def instance_key(cls, id):
-        return u"%s:%s" % (cls._key, id)
+        return u"%s:%s" % (cls._key, str(id))
+
+    @classmethod
+    def get_by_id(cls, id):
+        instance = cls()
+        instance._id = str(id)
+        instance._set_instance_keys()
+        stored_attrs = instance.db.hgetall(instance._instance_key)
+        if not stored_attrs: # object does not exist
+            return None
+        instance.load_attributes_from_redis_raw_data(stored_attrs)
+        return instance
+
+    @classmethod
+    def load_from_raw_data(cls, id, stored_attrs):
+        instance = cls()
+        instance._id = str(id)
+        instance._set_instance_keys()
+        instance.load_attributes_from_redis_raw_data(stored_attrs)
+        return instance
 
     ###################
     # Private methods #
@@ -556,8 +568,8 @@ class Model(object):
                 if v.auto_now_add and _new:
                     setattr(self, k, datetime.now(tz=tzutc()))
             for_storage = getattr(self, k)
-            if for_storage is not None:
-                h[k] = v.typecast_for_storage(for_storage)
+            #if for_storage is not None:
+            h[k] = v.typecast_for_storage(for_storage)
         # indices
         for index in self.indices:
             if index not in self.lists and index not in self.attributes:
@@ -570,8 +582,8 @@ class Model(object):
                     except UnicodeError:
                         h[index] = unicode(v.decode('utf-8'))
         pipeline.delete(self._instance_key)
-        if h:
-            pipeline.hmset(self._instance_key, h)
+        print "WRITING", self._instance_key, h
+        pipeline.hmset(self._instance_key, h)
 
         # lists
         for k, v in self.lists.iteritems():

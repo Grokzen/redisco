@@ -31,9 +31,17 @@ class ModelSet(Set):
         Will look in _set to get the id and simply return the instance of the model.
         """
         if isinstance(index, slice):
-            return map(lambda id: self._get_item_with_id(id), self._set[index])
+            pipeline = self._db.pipeline()
+            for id in self._set[index]:
+                pipeline.hgetall(self.model_class.instance_key(id))
+            rawdata = pipeline.execute()
+            results = []
+            for id, rd in zip(self._set[index], rawdata):
+                results.append(self.model_class.load_from_raw_data(id, rd))
+            return results
         else:
             id = self._set[index]
+            print index, id
             if id:
                 return self._get_item_with_id(id)
             else:
@@ -82,8 +90,7 @@ class ModelSet(Set):
         """
         if (self._filters or self._exclusions or self._zfilters) and str(id) not in self._set:
             return
-        if self.model_class.exists(id):
-            return self._get_item_with_id(id)
+        return self._get_item_with_id(id)
 
     def first(self):
         """
@@ -474,8 +481,7 @@ class ModelSet(Set):
         Fetch an object and return the instance. The real fetching is
         done by assigning the id to the Instance. See ``Model`` class.
         """
-        instance = self.model_class()
-        instance.id = str(id)
+        instance = self.model_class.get_by_id(id)
         return instance
 
     def _build_key_from_filter_item(self, index, value):
