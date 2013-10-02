@@ -554,7 +554,7 @@ class Model(object):
         pipeline = self.db.pipeline()
         self._create_membership(pipeline)
         self._update_indices(pipeline)
-        h = {}
+        h = {"id": self._instance_key}
         # attributes
         for k, v in self.attributes.iteritems():
             if isinstance(v, DateTimeField):
@@ -568,8 +568,8 @@ class Model(object):
                 if v.auto_now_add and _new:
                     setattr(self, k, datetime.now(tz=tzutc()))
             for_storage = getattr(self, k)
-            #if for_storage is not None:
-            h[k] = v.typecast_for_storage(for_storage)
+            if for_storage is not None:
+                h[k] = v.typecast_for_storage(for_storage)
         # indices
         for index in self.indices:
             if index not in self.lists and index not in self.attributes:
