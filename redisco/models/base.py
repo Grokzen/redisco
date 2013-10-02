@@ -298,10 +298,10 @@ class Model(object):
             if att.name in kwargs:
                 att.__set__(self, kwargs[att.name])
 
-    def save(self):
+    def save(self, validate_fields=True):
         """
         Saves the instance to the datastore with the following steps:
-        1. Validate all the fields
+        1. Validate all the fields (DEFAULT/OPTIONAL. Validation can be turned off with validate_fields=False)
         2. Assign an ID if the object is new
         3. Save to the datastore.
 
@@ -315,13 +315,12 @@ class Model(object):
         True
         >>> f.delete()
         """
-        if not self.is_valid():
+        if validate_fields and not self.is_valid():
             return self._errors
         _new = self.is_new()
         if _new:
             self._initialize_id()
-        with Mutex(self):
-            self._write(_new)
+        self._write(_new)
         return True
 
     def key(self, att=None):
