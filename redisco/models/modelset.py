@@ -41,7 +41,6 @@ class ModelSet(Set):
             return results
         else:
             id = self._set[index]
-            print index, id
             if id:
                 return self._get_item_with_id(id)
             else:

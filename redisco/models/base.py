@@ -582,7 +582,6 @@ class Model(object):
                     except UnicodeError:
                         h[index] = unicode(v.decode('utf-8'))
         pipeline.delete(self._instance_key)
-        print "WRITING", self._instance_key, h
         pipeline.hmset(self._instance_key, h)
 
         # lists
