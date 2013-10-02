@@ -10,3 +10,7 @@ dump.rdb
 /.pyflymakercc
 /.emacs.desktop
 /redisco/.ropeproject/config.py
+.Python
+lib
+bin
+include
