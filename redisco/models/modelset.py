@@ -119,7 +119,7 @@ class ModelSet(Set):
             return None
 
     count = __len__
-    
+
     #####################################
     # METHODS THAT MODIFY THE MODEL SET #
     #####################################
@@ -304,7 +304,7 @@ class ModelSet(Set):
         # For performance reasons, only one zfilter is allowed.
         if hasattr(self, '_cached_set'):
             return self._cached_set
-        s = Set(self.key)
+        s = Set(self.key, db=self.db)
         if self._zfilters:
             s = self._add_zfilters(s)
         if self._filters:
@@ -334,6 +334,7 @@ class ModelSet(Set):
                         (k, self.model_class.__name__))
             indices.append(index)
         new_set_key = "~%s.%s" % ("+".join([self.key] + indices), id(self))
+        print new_set_key.encode("utf-8"), indices
         s.intersection(new_set_key, *[Set(n, db=self.db) for n in indices])
         new_set = Set(new_set_key, db=self.db)
         new_set.set_expire()
@@ -403,13 +404,13 @@ class ModelSet(Set):
         elif op == 'in':
             members = zset.between(min, max, limit, offset)
 
-        temp_set = Set(new_set_key_temp)
+        temp_set = Set(new_set_key_temp, db=self.db)
         if members:
             temp_set.add(*members)
         temp_set.set_expire()
 
         s.intersection(new_set_key, temp_set)
-        new_set = Set(new_set_key)
+        new_set = Set(new_set_key, db=self.db)
         new_set.set_expire()
         return new_set
 

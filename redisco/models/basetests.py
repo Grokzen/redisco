@@ -23,7 +23,7 @@ class Person(models.Model):
 class RediscoTestCase(unittest.TestCase):
     def setUp(self):
         self.client = redisco.get_client()
-        self.client.flushdb()
+        self.client.flushall()
 
     def tearDown(self):
         self.client.flushdb()
@@ -171,6 +171,7 @@ class ModelTestCase(RediscoTestCase):
         Person.objects.create(first_name="Granny", last_name="Kent")
         persons = Person.objects.filter(first_name="Granny")
 
+        self.assertEqual(len(persons), 3)
         self.assertEqual('1', persons[0].id)
         self.assertEqual(3, len(persons))
 
@@ -179,6 +180,34 @@ class ModelTestCase(RediscoTestCase):
 
         # by index
         persons = Person.objects.filter(full_name="Granny Mommy")
+        self.assertEqual(1, len(persons))
+        self.assertEqual("Granny Mommy", persons[0].full_name())
+
+    def test_filter_different_db(self):
+        class DifferentPerson(models.Model):
+            first_name = models.CharField()
+            last_name = models.CharField()
+            def full_name(self):
+                return "%s %s" % (self.first_name, self.last_name,)
+            class Meta:
+                indices = ['full_name']
+                db = redis.Redis(db=8)
+
+        DifferentPerson.objects.create(first_name="Granny", last_name="Goose")
+        DifferentPerson.objects.create(first_name="Clark", last_name="Kent")
+        DifferentPerson.objects.create(first_name="Granny", last_name="Mommy")
+        DifferentPerson.objects.create(first_name="Granny", last_name="Kent")
+        persons = DifferentPerson.objects.filter(first_name="Granny")
+
+        self.assertEqual(len(persons), 3)
+        self.assertEqual('1', persons[0].id)
+        self.assertEqual(3, len(persons))
+
+        persons = DifferentPerson.objects.filter(first_name="Clark")
+        self.assertEqual(1, len(persons))
+
+        # by index
+        persons = DifferentPerson.objects.filter(full_name="Granny Mommy")
         self.assertEqual(1, len(persons))
         self.assertEqual("Granny Mommy", persons[0].full_name())
 
