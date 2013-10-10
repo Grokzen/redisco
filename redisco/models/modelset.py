@@ -71,7 +71,6 @@ class ModelSet(Set):
     ##########################################
     # METHODS THAT RETURN A SET OF INSTANCES #
     ##########################################
-
     def get_by_id(self, id):
         """
         Returns the object definied by ``id``.
@@ -119,7 +118,8 @@ class ModelSet(Set):
         except IndexError:
             return None
 
-
+    count = __len__
+    
     #####################################
     # METHODS THAT MODIFY THE MODEL SET #
     #####################################

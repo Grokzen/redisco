@@ -48,4 +48,6 @@ class Manager(object):
     def values(self):
         return self.get_model_set().values()
 
+    def count(self):
+        return self.get_model_set().count()
 

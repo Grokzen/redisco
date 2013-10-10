@@ -565,6 +565,17 @@ class ModelTestCase(RediscoTestCase):
         self.assertEqual(p.first_name, v["first_name"])
         self.assertEqual(p.last_name, v["last_name"])
 
+    def test_count(self):
+        self.assertEqual(Person.objects.count(), 0)
+        Person.objects.create(first_name="Granny", last_name="Goose")
+        Person.objects.create(first_name="Clark", last_name="Kent")
+        Person.objects.create(first_name="Granny", last_name="Mommy")
+        Person.objects.create(first_name="Lois", last_name="Kent")
+        Person.objects.create(first_name="Jonathan", last_name="Kent")
+        Person.objects.create(first_name="Martha", last_name="Kent")
+        Person.objects.create(first_name="Lex", last_name="Luthor")
+        Person.objects.create(first_name="Lionel", last_name="Luthor")
+        self.assertEqual(Person.objects.count(), 8)
 
     def test_customizable_key(self):
         class Person(models.Model):
