@@ -528,9 +528,43 @@ class ModelTestCase(RediscoTestCase):
         Person.objects.create(first_name="Lex", last_name="Luthor")
         Person.objects.create(first_name="Lionel", last_name="Luthor")
 
-        persons = Person.objects.values().all()
-        for person in persons:
-            self.assertTrue(isinstance(person, dict))
+        persons_values = Person.objects.values().all()
+        persons = Person.objects.all()
+        for p, v in zip(persons, persons_values):
+            self.assertTrue(isinstance(p, Person))
+            self.assertTrue(isinstance(v, dict))
+            self.assertEqual(p.first_name, v["first_name"])
+            self.assertEqual(p.last_name, v["last_name"])
+
+        persons_values = Person.objects.values().all()[2:5]
+        persons = Person.objects.all()[2:5]
+        for p, v in zip(persons, persons_values):
+            self.assertTrue(isinstance(p, Person))
+            self.assertTrue(isinstance(v, dict))
+            self.assertEqual(p.first_name, v["first_name"])
+            self.assertEqual(p.last_name, v["last_name"])
+
+        p = Person.objects.get_by_id(1)
+        v = Person.objects.values().get_by_id(1)
+        self.assertTrue(isinstance(p, Person))
+        self.assertTrue(isinstance(v, dict))
+        self.assertEqual(p.first_name, v["first_name"])
+        self.assertEqual(p.last_name, v["last_name"])
+
+        p = Person.objects.all().first()
+        v = Person.objects.values().all().first()
+        self.assertTrue(isinstance(p, Person))
+        self.assertTrue(isinstance(v, dict))
+        self.assertEqual(p.first_name, v["first_name"])
+        self.assertEqual(p.last_name, v["last_name"])
+
+        p = Person.objects.all()[3]
+        v = Person.objects.values().all()[3]
+        self.assertTrue(isinstance(p, Person))
+        self.assertTrue(isinstance(v, dict))
+        self.assertEqual(p.first_name, v["first_name"])
+        self.assertEqual(p.last_name, v["last_name"])
+
 
     def test_customizable_key(self):
         class Person(models.Model):

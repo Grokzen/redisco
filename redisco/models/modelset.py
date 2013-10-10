@@ -531,4 +531,5 @@ class ModelSet(Set):
             c._ordering = self._ordering
         c._limit = self._limit
         c._offset = self._offset
+        c._return_values = self._return_values
         return c

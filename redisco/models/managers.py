@@ -45,4 +45,7 @@ class Manager(object):
     def zfilter(self, **kwargs):
         return self.get_model_set().zfilter(**kwargs)
 
+    def values(self):
+        return self.get_model_set().values()
+
 
