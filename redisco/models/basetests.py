@@ -518,6 +518,19 @@ class ModelTestCase(RediscoTestCase):
                 last_name="Weiss")
         self.assertEqual('7', p.id)
 
+    def test_values(self):
+        Person.objects.create(first_name="Granny", last_name="Goose")
+        Person.objects.create(first_name="Clark", last_name="Kent")
+        Person.objects.create(first_name="Granny", last_name="Mommy")
+        Person.objects.create(first_name="Lois", last_name="Kent")
+        Person.objects.create(first_name="Jonathan", last_name="Kent")
+        Person.objects.create(first_name="Martha", last_name="Kent")
+        Person.objects.create(first_name="Lex", last_name="Luthor")
+        Person.objects.create(first_name="Lionel", last_name="Luthor")
+
+        persons = Person.objects.values().all()
+        for person in persons:
+            self.assertTrue(isinstance(person, dict))
 
     def test_customizable_key(self):
         class Person(models.Model):

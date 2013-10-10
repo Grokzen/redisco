@@ -21,6 +21,7 @@ class ModelSet(Set):
         self._ordering = []
         self._limit = None
         self._offset = None
+        self._return_values = False
 
     #################
     # MAGIC METHODS #
@@ -35,10 +36,13 @@ class ModelSet(Set):
             for id in self._set[index]:
                 pipeline.hgetall(self.model_class.instance_key(id))
             rawdata = pipeline.execute()
-            results = []
-            for id, rd in zip(self._set[index], rawdata):
-                results.append(self.model_class.load_from_raw_data(id, rd))
-            return results
+            if self._return_values:
+                return rawdata
+            else:
+                instances = []
+                for id, rd in zip(self._set[index], rawdata):
+                    instances.append(self.model_class.load_from_raw_data(id, rd))
+                return instances
         else:
             id = self._set[index]
             if id:
@@ -119,6 +123,14 @@ class ModelSet(Set):
     #####################################
     # METHODS THAT MODIFY THE MODEL SET #
     #####################################
+
+    def values(self):
+        """
+        Returns dictionaries rather than model-instance objects.
+        """
+        clone = self._clone()
+        clone._return_values = True
+        return clone
 
     def filter(self, **kwargs):
         """
@@ -477,12 +489,14 @@ class ModelSet(Set):
 
     def _get_item_with_id(self, id):
         """
-        Fetch an object and return the instance. The real fetching is
-        done by assigning the id to the Instance. See ``Model`` class.
+        Fetch an object and return the instance.
         """
-        instance = self.model_class.get_by_id(id)
-        return instance
-
+        if self._return_values:
+            instance_key = self.model_class.instance_key(id)
+            return self.db.hgetall(instance_key)
+        else:
+            return self.model_class.get_by_id(id)
+        
     def _build_key_from_filter_item(self, index, value):
         """
         Build the keys from the filter so we can fetch the good keys
