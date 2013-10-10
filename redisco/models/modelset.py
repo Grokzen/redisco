@@ -334,7 +334,6 @@ class ModelSet(Set):
                         (k, self.model_class.__name__))
             indices.append(index)
         new_set_key = "~%s.%s" % ("+".join([self.key] + indices), id(self))
-        print new_set_key.encode("utf-8"), indices
         s.intersection(new_set_key, *[Set(n, db=self.db) for n in indices])
         new_set = Set(new_set_key, db=self.db)
         new_set.set_expire()
