@@ -119,11 +119,8 @@ class CharField(Attribute):
 
     def validate(self, instance):
         errors = []
-        try:
-            super(CharField, self).validate(instance)
-        except FieldValidationError as err:
-            errors.extend(err.errors)
-
+        super(CharField, self).validate(instance)
+       
         val = getattr(instance, self.name)
 
         if val and len(val) > self.max_length:
