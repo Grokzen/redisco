@@ -316,7 +316,7 @@ class Model(object):
         >>> f.delete()
         """
         if validate_fields and not self.is_valid():
-            return self._errors
+            return False
         _new = self.is_new()
         if _new:
             self._initialize_id()
