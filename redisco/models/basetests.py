@@ -45,9 +45,12 @@ class ModelTestCase(RediscoTestCase):
 
     def test_save(self):
         person1 = Person(first_name="Granny", last_name="Goose")
-        person1.save()
+        self.assertTrue(person1.save())
         person2 = Person(first_name="Jejomar")
-        person2.save()
+        self.assertTrue(person2.save())
+        person3 = Person(first_name=2, last_name=3)
+        self.assertFalse(person3.save()) # Validation error
+        self.assertTrue(person3.save(validate_fields=False)) # Validation error
 
         self.assertEqual('1', person1.id)
         self.assertEqual('2', person2.id)
