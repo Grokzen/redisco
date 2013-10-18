@@ -10,8 +10,6 @@ from attributes import Counter
 
 __all__ = ['Model', 'from_key']
 
-ZINDEXABLE = (IntegerField, DateTimeField, DateField, FloatField)
-
 ##############################
 # Model Class Initialization #
 ##############################
@@ -688,7 +686,7 @@ class Model(object):
 
     def _get_index_key_for_non_list_attr(self, att, value):
         descriptor = self.attributes.get(att)
-        if descriptor and isinstance(descriptor, ZINDEXABLE):
+        if descriptor and descriptor.zindexable:
             sval = descriptor.typecast_for_storage(value)
             return self._tuple_for_index_key_attr_zset(att, value, sval)
         elif descriptor:

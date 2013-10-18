@@ -5,7 +5,7 @@ from attributes import IntegerField, DateTimeField
 import redisco
 from redisco.containers import SortedSet, Set, List, NonPersistentList
 from exceptions import AttributeNotIndexed
-from attributes import ZINDEXABLE
+
 
 # Model Set
 class ModelSet(Set):
@@ -93,6 +93,9 @@ class ModelSet(Set):
         if (self._filters or self._exclusions or self._zfilters) and str(id) not in self._set:
             return
         return self._get_item_with_id(id)
+
+    def get(self, **kwargs):
+        return self.filter(**kwargs).first()
 
     def first(self):
         """
@@ -216,7 +219,7 @@ class ModelSet(Set):
         alpha = True
         if fname in self.model_class._attributes:
             v = self.model_class._attributes[fname]
-            alpha = not isinstance(v, ZINDEXABLE)
+            alpha = not v.zindexable
         clone = self._clone()
         if not clone._ordering:
             clone._ordering = []

@@ -12,7 +12,7 @@ from exceptions import FieldValidationError, MissingID
 
 __all__ = ['Attribute', 'CharField', 'ListField', 'DateTimeField',
         'DateField', 'ReferenceField', 'Collection', 'IntegerField',
-        'FloatField', 'BooleanField', 'Counter', 'ZINDEXABLE']
+        'FloatField', 'BooleanField', 'Counter']
 
 
 class Attribute(object):
@@ -46,6 +46,7 @@ class Attribute(object):
         self.validator = validator
         self.default = default
         self.unique = unique
+        self.zindexable = False
 
     def __get__(self, instance, owner):
         try:
@@ -147,6 +148,10 @@ class BooleanField(Attribute):
 
 
 class IntegerField(Attribute):
+    def __init__(self, **kwargs):
+        super(IntegerField, self).__init__(**kwargs)
+        self.zindexable = True
+
     def typecast_for_read(self, value):
         return int(value)
 
@@ -163,6 +168,10 @@ class IntegerField(Attribute):
 
 
 class FloatField(Attribute):
+    def __init__(self, **kwargs):
+        super(FloatField, self).__init__(**kwargs)
+        self.zindexable = True
+
     def typecast_for_read(self, value):
         return float(value)
 
@@ -184,6 +193,7 @@ class DateTimeField(Attribute):
         super(DateTimeField, self).__init__(**kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
+        self.zindexable = True
 
     def typecast_for_read(self, value):
         try:
@@ -218,6 +228,7 @@ class DateField(Attribute):
         super(DateField, self).__init__(**kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now_add
+        self.zindexable = True
 
     def typecast_for_read(self, value):
         try:
@@ -443,6 +454,7 @@ class Counter(IntegerField):
         super(Counter, self).__init__(**kwargs)
         if not kwargs.has_key('default') or self.default is None:
             self.default = 0
+        self.zindexable = True
 
     def __set__(self, instance, value):
         raise AttributeError("can't set a counter.")
@@ -455,6 +467,3 @@ class Counter(IntegerField):
             return int(v)
         else:
             return 0
-
-
-ZINDEXABLE = (IntegerField, DateTimeField, DateField, FloatField, Counter)
