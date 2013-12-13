@@ -12,6 +12,8 @@ from dateutil.tz import tzlocal
 class Person(models.Model):
     first_name = models.CharField()
     last_name = models.CharField()
+    year_of_birth = models.IntegerField(indexed=True)
+    month_of_birth = models.Attribute(indexed=True)
 
     def full_name(self):
         return "%s %s" % (self.first_name, self.last_name,)
@@ -71,11 +73,11 @@ class ModelTestCase(RediscoTestCase):
 
     def test_repr(self):
         person1 = Person(first_name="Granny", last_name="Goose")
-        self.assertEqual("<Person {'first_name': 'Granny', 'last_name': 'Goose'}>",
+        self.assertEqual("<Person {'first_name': 'Granny', 'last_name': 'Goose', 'year_of_birth': None, 'month_of_birth': None}>",
                 repr(person1))
 
         self.assert_(person1.save())
-        self.assertEqual("<Person:1 {'first_name': 'Granny', 'last_name': 'Goose', 'id': '1'}>",
+        self.assertEqual("<Person:1 {'first_name': 'Granny', 'last_name': 'Goose', 'year_of_birth': None, 'month_of_birth': None, 'id': '1'}>",
                 repr(person1))
 
     def test_update(self):
@@ -621,6 +623,33 @@ class ModelTestCase(RediscoTestCase):
         self.assert_(p.save())
 
         self.assert_('1' in self.client.smembers('People:all'))
+
+    def test_indexed_values(self):
+        Person.objects.create(first_name="Granny", last_name="Goose", year_of_birth=1980)
+        Person.objects.create(first_name="Clark", last_name="Kent", year_of_birth=1980)
+        Person.objects.create(first_name="Granny", last_name="Mommy", year_of_birth=1979)
+        Person.objects.create(first_name="Lois", last_name="Kent", year_of_birth=1960)
+        Person.objects.create(first_name="Jonathan", last_name="Kent", year_of_birth=1944)
+        Person.objects.create(first_name="Martha", last_name="Kent", year_of_birth=1961)
+        Person.objects.create(first_name="Lex", last_name="Luthor", year_of_birth=1960)
+        Person.objects.create(first_name="Lionel", last_name="Luthor", year_of_birth=1980)
+
+        years = Person.objects.get_indexed_values("month_of_birth")
+        self.assertEqual(type(years), list)
+        self.assertEqual(len(years), 0)
+
+        years = Person.objects.get_indexed_values("year_of_birth")
+        self.assertEqual(type(years), list)
+        self.assertEqual(len(years), 5)
+        for year in [1980, 1979, 1960, 1944, 1961]:
+            self.assertTrue(year in years)
+
+        try:
+            years = Person.objects.get_indexed_values("first_name")
+            assert False
+        except:
+            assert True
+
 
 
 class Event(models.Model):

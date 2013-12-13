@@ -51,3 +51,6 @@ class Manager(object):
     def count(self):
         return self.get_model_set().count()
 
+    def get_indexed_values(self, attribute):
+        return self.get_model_set().get_indexed_values(attribute)
+

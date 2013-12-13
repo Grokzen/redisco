@@ -284,7 +284,31 @@ class ModelSet(Set):
         else:
             return self.create(**kwargs)
 
-    #
+    def get_indexed_values(self, attribute_name):
+        """
+        Return indexed values for a model attribute. 
+
+        >>> from redisco import models
+        >>> class Foo(models.Model):
+        ...     name = models.Attribute(indexed=True)
+        ...
+        >>> Foo.objects.create(name="Obama")
+        >>> Foo.objects.create(name="Hollande")
+        >>> Foo.objects.create(name="Merkel")
+        >>> Foo.objects.create(name="Merkel")
+        >>> Foo.objects.get_indexed_values("name)
+        ["Hollande", "Merkel", "Obama"]
+        """
+        if attribute_name not in self.model_class._indices:
+            raise AttributeNotIndexed(
+                        "Attribute %s is not indexed in %s class." %
+                        (k, self.model_class.__name__))
+        wildcard_search_key = "%s:%s:*" % (self.model_class._key, attribute_name)
+        keys = self._db.keys(wildcard_search_key)
+        attribute = self.model_class._attributes[attribute_name]
+        values = [attribute.typecast_for_read(k.split(":")[2]) for k in keys]
+        return values
+    
 
     @property
     def db(self):
