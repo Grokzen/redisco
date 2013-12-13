@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 
-version = '0.2.4'
+version = '0.3.0'
 
 try:
     from setuptools import setup
@@ -14,14 +14,14 @@ def read(fname):
 setup(name='redisco',
       version=version,
       description='Python Containers and Simple Models for Redis',
-      url='http://kiddouk.github.com/redisco',
+      url='',
       download_url='',
       long_description=read('README.rst'),
       install_requires=read('requirements.txt').splitlines(),
       author='Tim Medina',
       author_email='iamteem@gmail.com',
-      maintainer='Sebastien Requiem',
-      maintainer_email='sebastien.requiem@gmail.com',
+      maintainer='Miguel Galves',
+      maintainer_email='mgalves@gmail.com',
       keywords=['Redis', 'model', 'container'],
       license='MIT',
       packages=['redisco', 'redisco.models'],
