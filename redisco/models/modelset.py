@@ -235,6 +235,14 @@ class ModelSet(Set):
         clone._offset = offset
         return clone
 
+    def count(self):
+        """
+        Returns the count of the objects
+        """
+        count = _get_count()
+        return count
+
+
     def create(self, **kwargs):
         """
         Create an object of the class.
@@ -289,7 +297,7 @@ class ModelSet(Set):
 
     def get_indexed_values(self, attribute_name):
         """
-        Return indexed values for a model attribute. 
+        Return indexed values for a model attribute.
 
         >>> from redisco import models
         >>> class Foo(models.Model):
@@ -311,7 +319,7 @@ class ModelSet(Set):
         attribute = self.model_class._attributes[attribute_name]
         values = [attribute.typecast_for_read(k.split(":")[2]) for k in keys]
         return values
-    
+
 
     @property
     def db(self):
@@ -514,6 +522,11 @@ class ModelSet(Set):
         else:
             return (self._limit, self._offset)
 
+    def _get_count(self):
+        """
+        """
+        pass
+
     def _get_item_with_id(self, id):
         """
         Fetch an object and return the instance.
@@ -523,7 +536,7 @@ class ModelSet(Set):
             return self.db.hgetall(instance_key)
         else:
             return self.model_class.get_by_id(id)
-        
+
     def _build_key_from_filter_item(self, index, value):
         """
         Build the keys from the filter so we can fetch the good keys
