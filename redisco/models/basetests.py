@@ -110,6 +110,23 @@ class ModelTestCase(RediscoTestCase):
         self.assertEqual(False, u.disliked)
         self.assertEqual(199, u.views)
 
+    def test_callable_default_CharField_val(self):
+        class User(models.Model):
+            views = models.IntegerField(default=lambda: 199)
+            liked = models.BooleanField(default=lambda: True)
+            disliked = models.BooleanField(default=lambda: False)
+
+        u = User()
+        self.assertEqual(True, u.liked)
+        self.assertEqual(False, u.disliked)
+        self.assertEqual(199, u.views)
+        assert u.save()
+
+        u = User.objects.all()[0]
+        self.assertEqual(True, u.liked)
+        self.assertEqual(False, u.disliked)
+        self.assertEqual(199, u.views)
+
     def test_getitem(self):
         person1 = Person(first_name="Granny", last_name="Goose")
         person1.save()

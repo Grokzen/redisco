@@ -52,8 +52,12 @@ class Attribute(object):
         try:
             return getattr(instance, '_' + self.name)
         except AttributeError:
-            self.__set__(instance, self.default)
-            return self.default
+            if callable(self.default):
+                default = self.default()
+            else:
+                default = self.default
+            self.__set__(instance, default)
+            return default
 
     def __set__(self, instance, value):
         setattr(instance, '_' + self.name, value)
@@ -121,7 +125,7 @@ class CharField(Attribute):
     def validate(self, instance):
         errors = []
         super(CharField, self).validate(instance)
-       
+
         val = getattr(instance, self.name)
 
         if val and len(val) > self.max_length:
