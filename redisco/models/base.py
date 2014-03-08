@@ -215,6 +215,9 @@ class ModelBase(type):
                 att._target_type = cls
                 _initialize_referenced(model_class, att)
 
+    def __getitem__(self, id):
+        return self.objects.get_by_id(id)
+
 
 class Model(object):
     __metaclass__ = ModelBase
