@@ -289,18 +289,24 @@ class ModelSet(Set):
 
     def get_indexed_values(self, attribute_name):
         """
-        Return indexed values for a model attribute.
+        Return indexed values for a model attribute in unsorted form.
 
         >>> from redisco import models
         >>> class Foo(models.Model):
         ...     name = models.Attribute(indexed=True)
         ...
         >>> Foo.objects.create(name="Obama")
+        <Foo:12 {'name': 'Obama', 'id': '12'}>
         >>> Foo.objects.create(name="Hollande")
+        <Foo:13 {'name': 'Hollande', 'id': '13'}>
         >>> Foo.objects.create(name="Merkel")
+        <Foo:14 {'name': 'Merkel', 'id': '14'}>
         >>> Foo.objects.create(name="Merkel")
-        >>> Foo.objects.get_indexed_values("name)
-        ["Hollande", "Merkel", "Obama"]
+        <Foo:15 {'name': 'Merkel', 'id': '15'}>
+        >>> a = Foo.objects.get_indexed_values("name")
+        >>> b = ["Hollande", "Merkel", "Obama"]
+        >>> [i in b for i in a]
+        [True, True, True]
         """
         if attribute_name not in self.model_class._indices:
             raise AttributeNotIndexed(

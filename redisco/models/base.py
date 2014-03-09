@@ -1,6 +1,9 @@
+# python std lib
 import time
 from datetime import datetime, date
 from dateutil.tz import tzutc
+
+# redisco imports
 import redisco
 from redisco.containers import Set, List, SortedSet, NonPersistentList
 from attributes import *
@@ -34,6 +37,7 @@ def _initialize_attributes(model_class, name, bases, attrs):
             model_class._attributes[k] = v
             v.name = v.name or k
 
+
 def _initialize_referenced(model_class, attribute):
     """
     Adds a property to the target of a reference field that
@@ -49,7 +53,7 @@ def _initialize_referenced(model_class, attribute):
         return (klass, model_class, attribute)
     else:
         related_name = (attribute.related_name or
-                model_class.__name__.lower() + '_set')
+                        model_class.__name__.lower() + '_set')
         if not hasattr(klass, related_name):
             setattr(klass, related_name,
                     property(_related_objects))
@@ -155,6 +159,7 @@ def _initialize_keys(model_class, name):
     model_class._all_key = u"%s:all" % model_class._key
     model_class._id_gen_key = u"%s:id" % model_class._key
 
+
 def _initialize_manager(model_class):
     """
     Initializes the objects manager attribute of the model.
@@ -190,6 +195,7 @@ class ModelOptions(object):
 
 
 _deferred_refs = []
+
 
 class ModelBase(type):
     """
@@ -243,12 +249,14 @@ class Model(object):
         >>> f = Foo()
         >>> f.bar = "Invalid"
         >>> f.save()
-        ['bar', 'Invalid value']
+        False
 
         .. WARNING::
             You may want to use ``validate`` described below to validate your model
 
         """
+        # TODO: Add validation testing in .save() above
+        # ['bar', 'Invalid value']
         self._errors = []
         for field in self.fields:
             try:
@@ -274,9 +282,10 @@ class Model(object):
         ...
         >>> f = Foo(name="Invalid")
         >>> f.save()
-        [('name', 'cannot be Invalid')]
-
+        False
         """
+        # TODO: add proper validation test
+        # [('name', 'cannot be Invalid')]
         pass
 
     def update_attributes(self, **kwargs):
