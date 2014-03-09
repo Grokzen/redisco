@@ -15,9 +15,13 @@ Installation
 ------------
 Redisco requires redis-py 2.0.0 so get it first.
 
+::
+
     pip install redis
 
 Then install redisco.
+
+::
 
     pip install redisco
 
@@ -28,21 +32,8 @@ Documentation
 The documentation is available at : https://redisco.readthedocs.org
 
 
-Which version should I consider ?
----------------------------------
-
-- v0.1
-
-.. image:: https://secure.travis-ci.org/kiddouk/redisco.png?branch=0.1
-If you want something that is compatible with the original project developed by
-you should consider v0.1. It works.
-
-- v0.2
-
-.. image:: https://secure.travis-ci.org/kiddouk/redisco.png?branch=0.2
-If you are adventurous and want to try a version that is going closer to Ohm
-project you should consider v0.2. Warning, your indexing keys will be broken
-(if you are planning to migrate).
+test status
+-----------
 
 - master
 
@@ -147,10 +138,11 @@ You can specify some options in your Model to control the behaviour of the
 back scene.
 
 ::
+
     class User(models.Model):
         firstname = models.Attribute()
         lastname = models.Attribute()
-        
+
         @property
         def fullname(self):
             return "%s %s" % (self.firstname, self.lastname)
@@ -323,6 +315,8 @@ Additional Info on Containers
 Some methods of the Redis client that require the key as the first argument
 can be accessed from the container itself.
 
+::
+
     >>> l = List('mylist')
     >>> l.lrange(0, -1)
     0
@@ -353,6 +347,8 @@ The arguments to connect are simply passed to the redis.Redis init method.
 
 For the containers, you can specify a second argument as the Redis client.
 That client object will be used instead of the default.
+
+::
 
     >>> import redis
     >>> r = redis.Redis(host='localhost', port=6381)
