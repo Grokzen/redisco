@@ -239,9 +239,8 @@ class ModelSet(Set):
         """
         Returns the count of the objects
         """
-        count = _get_count()
+        count = self._get_count()
         return count
-
 
     def create(self, **kwargs):
         """
