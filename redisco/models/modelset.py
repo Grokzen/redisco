@@ -235,13 +235,6 @@ class ModelSet(Set):
         clone._offset = offset
         return clone
 
-    def count(self):
-        """
-        Returns the count of the objects
-        """
-        count = self._get_count()
-        return count
-
     def create(self, **kwargs):
         """
         Create an object of the class.
@@ -520,11 +513,6 @@ class ModelSet(Set):
             return (None, None)
         else:
             return (self._limit, self._offset)
-
-    def _get_count(self):
-        """
-        """
-        pass
 
     def _get_item_with_id(self, id):
         """
