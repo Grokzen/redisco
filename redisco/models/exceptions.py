@@ -3,17 +3,22 @@
 ##########
 from redis import WatchError
 
+
 class Error(StandardError):
     pass
+
 
 class ValidationError(Error):
     pass
 
+
 class MissingID(Error):
     pass
 
+
 class AttributeNotIndexed(Error):
     pass
+
 
 class FieldValidationError(Error):
 
@@ -24,6 +29,7 @@ class FieldValidationError(Error):
     @property
     def errors(self):
         return self._errors
+
 
 class BadKeyError(Error):
     pass

@@ -16,7 +16,8 @@ def find_events():
 
 
 def display_results(results, name):
-    print "%s: 5000 Loops, best of 3: %.02f sec" % (name, min(results))
+    print("%s: 5000 Loops, best of 3: %.02f sec" % (name, min(results)))
+
 
 def profile():
     import cProfile
@@ -28,7 +29,6 @@ for x in xrange(0, 5000):
     cProfile.run(stmt, "b33f.prof")
     p = pstats.Stats("b33f.prof")
     p.strip_dirs().sort_stats('cumulative').print_stats(20)
-    
 
 
 db = get_client()
@@ -43,4 +43,3 @@ display_results(t.repeat(repeat=1, number=5000), 'find_events')
 
 t = timeit.Timer('load_events()', 'from __main__ import load_events')
 display_results(t.repeat(repeat=1, number=5000), 'load_events')
-

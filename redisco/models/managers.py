@@ -4,6 +4,7 @@ from modelset import ModelSet
 # Managers #
 ############
 
+
 class ManagerDescriptor(object):
     def __init__(self, manager):
         self.manager = manager
@@ -53,4 +54,3 @@ class Manager(object):
 
     def get_indexed_values(self, attribute):
         return self.get_model_set().get_indexed_values(attribute)
-

@@ -9,6 +9,7 @@ from redisco import models
 from redisco.models.base import Mutex
 from dateutil.tz import tzlocal
 
+
 class Person(models.Model):
     first_name = models.CharField()
     last_name = models.CharField()
@@ -51,8 +52,8 @@ class ModelTestCase(RediscoTestCase):
         person2 = Person(first_name="Jejomar")
         self.assertTrue(person2.save())
         person3 = Person(first_name=2, last_name=3)
-        self.assertFalse(person3.save()) # Validation error
-        self.assertTrue(person3.save(validate_fields=False)) # Validation error
+        self.assertFalse(person3.save())  # Validation error
+        self.assertTrue(person3.save(validate_fields=False))  # Validation error
 
         self.assertEqual('1', person1.id)
         self.assertEqual('2', person2.id)
@@ -74,11 +75,11 @@ class ModelTestCase(RediscoTestCase):
     def test_repr(self):
         person1 = Person(first_name="Granny", last_name="Goose")
         self.assertEqual("<Person {'first_name': 'Granny', 'last_name': 'Goose', 'year_of_birth': None, 'month_of_birth': None}>",
-                repr(person1))
+                         repr(person1))
 
         self.assert_(person1.save())
         self.assertEqual("<Person:1 {'first_name': 'Granny', 'last_name': 'Goose', 'year_of_birth': None, 'month_of_birth': None, 'id': '1'}>",
-                repr(person1))
+                         repr(person1))
 
     def test_update(self):
         person1 = Person(first_name="Granny", last_name="Goose")
@@ -209,8 +210,10 @@ class ModelTestCase(RediscoTestCase):
         class DifferentPerson(models.Model):
             first_name = models.CharField()
             last_name = models.CharField()
+
             def full_name(self):
                 return "%s %s" % (self.first_name, self.last_name,)
+
             class Meta:
                 indices = ['full_name']
                 db = redis.Redis(db=8)
@@ -256,9 +259,8 @@ class ModelTestCase(RediscoTestCase):
         # mixed
         Person.objects.create(first_name="Granny", last_name="Pacman")
         persons = (Person.objects.filter(first_name="Granny")
-                    .exclude(last_name="Mommy"))
+                   .exclude(last_name="Mommy"))
         self.assertEqual(3, len(persons))
-
 
     def test_first(self):
         Person.objects.create(first_name="Granny", last_name="Goose")
@@ -270,7 +272,6 @@ class ModelTestCase(RediscoTestCase):
         lana = Person.objects.filter(first_name="Lana").first()
         self.assertFalse(lana)
 
-
     def test_iter(self):
         Person.objects.create(first_name="Granny", last_name="Goose")
         Person.objects.create(first_name="Clark", last_name="Kent")
@@ -278,8 +279,8 @@ class ModelTestCase(RediscoTestCase):
         Person.objects.create(first_name="Granny", last_name="Kent")
 
         for person in Person.objects.all():
-            self.assertTrue(person.full_name() in ("Granny Goose",
-                "Clark Kent", "Granny Mommy", "Granny Kent",))
+            self.assertTrue(person.full_name() in
+                            ("Granny Goose", "Clark Kent", "Granny Mommy", "Granny Kent"))
 
     def test_sort(self):
         Person.objects.create(first_name="Zeddicus", last_name="Zorander")
@@ -326,7 +327,6 @@ class ModelTestCase(RediscoTestCase):
         self.assertEqual("Richard", res[1].first_name)
         self.assertEqual("Zeddicus", res[2].first_name)
 
-
     def test_integer_field(self):
         class Character(models.Model):
             n = models.IntegerField()
@@ -359,10 +359,9 @@ class ModelTestCase(RediscoTestCase):
         Exam.objects.create(score=95, total_score=100)
 
         exams = Exam.objects.order('score')
-        self.assertEqual([9, 33, 75, 95, 99,], [exam.score for exam in exams])
+        self.assertEqual([9, 33, 75, 95, 99], [exam.score for exam in exams])
         filtered = Exam.objects.zfilter(score__in=(10, 96))
         self.assertEqual(3, len(filtered))
-
 
     def test_filter_date(self):
         from datetime import datetime
@@ -386,14 +385,14 @@ class ModelTestCase(RediscoTestCase):
             i += 1
 
         self.assertEqual([Post.objects.get_by_id(4)],
-                list(Post.objects.filter(date=
-                    datetime(2009, 12, 21, 1, 40, 0))))
+                         list(Post.objects.filter(date=
+                              datetime(2009, 12, 21, 1, 40, 0))))
 
         lt = (0, 2, 3, 4)
         res = [Post.objects.get_by_id(l + 1) for l in lt]
         self.assertEqual(set(res),
-                set(Post.objects.zfilter(
-                    date__lt=datetime(2010, 1, 30))))
+                         set(Post.objects.zfilter(
+                             date__lt=datetime(2010, 1, 30))))
 
     def test_validation(self):
         class Person(models.Model):
@@ -413,7 +412,7 @@ class ModelTestCase(RediscoTestCase):
 
         p = Person(name="John")
         self.assertFalse(p.errors)
-        p.name = "Chuck" # name should be unique
+        p.name = "Chuck"  # name should be unique
         # this doesn't work:
         #self.assertEquals(not p.errors, p.is_valid())
         # but this works:
@@ -441,7 +440,6 @@ class ModelTestCase(RediscoTestCase):
                 if self.age >= 10:
                     self._errors.append(('age', 'must be below 10'))
 
-
         nin1 = Ninja(age=9)
         self.assertTrue(nin1.is_valid())
 
@@ -456,7 +454,6 @@ class ModelTestCase(RediscoTestCase):
             p = Person(age=val)
             self.assertFalse(p.is_valid())
             self.assertEqual([('age', 'bad type')], p.errors)
-
 
     def test_load_object_from_key(self):
         class Schedule(models.Model):
@@ -563,10 +560,10 @@ class ModelTestCase(RediscoTestCase):
         Person.objects.create(first_name="Martha", last_name="Kent")
 
         p = Person.objects.get_or_create(first_name="Lois",
-                last_name="Kent")
+                                         last_name="Kent")
         self.assertEqual('4', p.id)
         p = Person.objects.get_or_create(first_name="Jonathan",
-                last_name="Weiss")
+                                         last_name="Weiss")
         self.assertEqual('7', p.id)
 
     def test_values(self):
@@ -668,10 +665,10 @@ class ModelTestCase(RediscoTestCase):
             assert True
 
 
-
 class Event(models.Model):
     name = models.CharField(required=True)
     date = models.DateField(required=True)
+
 
 class DateFieldTestCase(RediscoTestCase):
 
@@ -682,7 +679,7 @@ class DateFieldTestCase(RediscoTestCase):
 
     def test_saved_CharField(self):
         instance = Event.objects.create(name="Legend of the Seeker Premiere",
-                      date=date(2008, 11, 12))
+                                        date=date(2008, 11, 12))
         assert instance
         event = Event.objects.get_by_id(instance.id)
         assert event
@@ -704,7 +701,7 @@ class DateFieldTestCase(RediscoTestCase):
         self.assertEqual(2, self.client.scard("Event:1:_indices"))
         for index in self.client.smembers("Event:1:_indices"):
             self.assertTrue(index.startswith("Event:date") or
-                    index.startswith("Event:name"))
+                            index.startswith("Event:name"))
 
     def test_auto_now(self):
         class Report(models.Model):
@@ -736,6 +733,7 @@ class Student(models.Model):
     name = models.CharField(required=True)
     average = models.FloatField(required=True)
 
+
 class FloatFieldTestCase(RediscoTestCase):
     def test_CharField(self):
         s = Student(name="Richard Cypher", average=86.4)
@@ -743,7 +741,7 @@ class FloatFieldTestCase(RediscoTestCase):
 
     def test_saved_CharField(self):
         s = Student.objects.create(name="Richard Cypher",
-                      average=3.14159)
+                                   average=3.14159)
         assert s
         student = Student.objects.get_by_id(s.id)
         assert student
@@ -757,13 +755,13 @@ class FloatFieldTestCase(RediscoTestCase):
         good = Student.objects.zfilter(average__gt=50.0)
         self.assertEqual(3, len(good))
         self.assertTrue("Richard Cypher",
-                Student.objects.filter(average=3.14159)[0].name)
-
+                        Student.objects.filter(average=3.14159)[0].name)
 
 
 class Task(models.Model):
     name = models.CharField()
     done = models.BooleanField()
+
 
 class BooleanFieldTestCase(RediscoTestCase):
     def test_CharField(self):
@@ -799,7 +797,6 @@ class BooleanFieldTestCase(RediscoTestCase):
         self.assertEqual(5, len(unfin))
 
 
-
 class ListFieldTestCase(RediscoTestCase):
     def test_basic(self):
         class Cake(models.Model):
@@ -818,7 +815,7 @@ class ListFieldTestCase(RediscoTestCase):
                             sizes=[])
         cake = Cake.objects.all()[0]
         self.assertEqual(['strawberry', 'sugar', 'dough'],
-                cake.ingredients)
+                         cake.ingredients)
         with_sugar = Cake.objects.filter(ingredients='sugar')
         self.assertTrue(2, len(with_sugar))
         self.assertEqual([1, 2, 5], with_sugar[0].sizes)
@@ -844,15 +841,14 @@ class ListFieldTestCase(RediscoTestCase):
             name = models.CharField(required=True)
             books = models.ListField(Book)
 
-        book = Book.objects.create(
-                title="University Physics With Modern Physics",
-                date_published=date(2007, 4, 2))
+        book = Book.objects.create(title="University Physics With Modern Physics",
+                                   date_published=date(2007, 4, 2))
         assert book
 
         author1 = Author.objects.create(name="Hugh Young",
-                books=[book])
+                                        books=[book])
         author2 = Author.objects.create(name="Roger Freedman",
-                books=[book])
+                                        books=[book])
 
         assert author1
         assert author2
@@ -861,9 +857,8 @@ class ListFieldTestCase(RediscoTestCase):
         self.assertTrue(book in author1.books)
         self.assertTrue(book in author2.books)
 
-        book = Book.objects.create(
-                title="University Physics With Modern Physics Paperback",
-                date_published=date(2007, 4, 2))
+        book = Book.objects.create(title="University Physics With Modern Physics Paperback",
+                                   date_published=date(2007, 4, 2))
 
         author1.books.append(book)
         assert author1.save()
@@ -962,7 +957,7 @@ class ReferenceFieldTestCase(RediscoTestCase):
             zipcode = models.CharField()
 
         address = Address.objects.create(street_address="32/F Redisville",
-                city="NoSQL City", zipcode="1.3.18")
+                                         city="NoSQL City", zipcode="1.3.18")
         assert address
         user = User.objects.create(name="Richard Cypher", address=address)
         assert user
@@ -980,6 +975,7 @@ class DateTimeFieldTestCase(RediscoTestCase):
     def test_basic(self):
         from datetime import datetime
         n = datetime(2009, 12, 31).replace(tzinfo=tzlocal())
+
         class Post(models.Model):
             title = models.CharField()
             date_posted = models.DateTimeField()
@@ -1000,7 +996,7 @@ class CounterFieldTestCase(RediscoTestCase):
             liked = models.Counter()
 
         post = Post.objects.create(title="First!",
-                body="Lorem ipsum")
+                                   body="Lorem ipsum")
         self.assert_(post)
         post.incr('liked')
         post.incr('liked', 2)

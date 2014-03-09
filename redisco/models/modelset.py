@@ -309,15 +309,13 @@ class ModelSet(Set):
         [True, True, True]
         """
         if attribute_name not in self.model_class._indices:
-            raise AttributeNotIndexed(
-                        "Attribute %s is not indexed in %s class." %
-                        (k, self.model_class.__name__))
+            # TODO: k is not defined O.o
+            raise AttributeNotIndexed("Attribute %s is not indexed in %s class." % (k, self.model_class.__name__))
         wildcard_search_key = "%s:%s:*" % (self.model_class._key, attribute_name)
         keys = self._db.keys(wildcard_search_key)
         attribute = self.model_class._attributes[attribute_name]
         values = [attribute.typecast_for_read(k.split(":")[2]) for k in keys]
         return values
-
 
     @property
     def db(self):
@@ -362,9 +360,7 @@ class ModelSet(Set):
         for k, v in self._filters.iteritems():
             index = self._build_key_from_filter_item(k, v)
             if k not in self.model_class._indices:
-                raise AttributeNotIndexed(
-                        "Attribute %s is not indexed in %s class." %
-                        (k, self.model_class.__name__))
+                raise AttributeNotIndexed("Attribute %s is not indexed in %s class." % (k, self.model_class.__name__))
             indices.append(index)
         new_set_key = "~%s.%s" % ("+".join([self.key] + indices), id(self))
         s.intersection(new_set_key, *[Set(n, db=self.db) for n in indices])
@@ -386,9 +382,7 @@ class ModelSet(Set):
         for k, v in self._exclusions.iteritems():
             index = self._build_key_from_filter_item(k, v)
             if k not in self.model_class._indices:
-                raise AttributeNotIndexed(
-                        "Attribute %s is not indexed in %s class." %
-                        (k, self.model_class.__name__))
+                raise AttributeNotIndexed("Attribute %s is not indexed in %s class." % (k, self.model_class.__name__))
             indices.append(index)
         new_set_key = "~%s.%s" % ("-".join([self.key] + indices), id(self))
         s.difference(new_set_key, *[Set(n, db=self.db) for n in indices])

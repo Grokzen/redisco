@@ -84,7 +84,6 @@ class Set(Container):
     This class represent a Set in redis.
     """
 
-
     def __repr__(self):
         return "<%s '%s' %s>" % (self.__class__.__name__, self.key,
                                  self.members)
@@ -294,8 +293,6 @@ class Set(Container):
         >>> s2.clear()
         >>> s3.clear()
         """
-
-
         if not isinstance(key, str) and not isinstance(key, unicode):
             raise ValueError("Expect a (unicode) string as key")
         key = unicode(key)
@@ -326,7 +323,6 @@ class Set(Container):
         >>> s2.clear()
         >>> s3.clear()
         """
-
         if not isinstance(key, str) and not isinstance(key, unicode):
             raise ValueError("Expect a (unicode) string as key")
         key = unicode(key)
@@ -670,8 +666,7 @@ class List(Container):
         return self.members.__iter__()
 
     def __repr__(self):
-        return "<%s '%s' %s>" % (self.__class__.__name__, self.key,
-                self.members)
+        return "<%s '%s' %s>" % (self.__class__.__name__, self.key, self.members)
 
     __len__ = llen
     remove = lrem
@@ -768,6 +763,7 @@ class TypedList(object):
 
     def __repr__(self):
         return repr(self.typecast_iter(self.list))
+
 
 class SortedSet(Container):
     """

@@ -48,7 +48,7 @@ class SetTestCase(unittest.TestCase):
         o.add('kiwis')
         fruits.update(o)
         self.assertEqual(set(['kiwis', 'apples', 'oranges']),
-                fruits.all())
+                         fruits.all())
 
     def test_comparisons(self):
         all_pls = cont.Set(key='ProgrammingLanguages')
@@ -99,8 +99,7 @@ class SetTestCase(unittest.TestCase):
 
         # union
         s = fruits.union("fruits|mypls", my_pls)
-        self.assertEqual(set(['Ruby', 'Python', 'Lua', 'Haskell', 'apples',
-            'oranges']), s.members)
+        self.assertEqual(set(['Ruby', 'Python', 'Lua', 'Haskell', 'apples', 'oranges']), s.members)
 
         # intersection
         inter = fruits.intersection('fruits&mypls', my_pls)
@@ -109,7 +108,6 @@ class SetTestCase(unittest.TestCase):
         # difference
         s = fruits.difference('fruits-my_pls', my_pls)
         self.assertEqual(set(['apples', 'oranges']), s.members)
-
 
     def test_operations_with_updates(self):
         abc = cont.Set('abc', self.client)
@@ -122,8 +120,7 @@ class SetTestCase(unittest.TestCase):
 
         # __ior__
         abc |= def_
-        self.assertEqual(set(['a', 'b', 'c', 'd', 'e', 'f']),
-                abc.all())
+        self.assertEqual(set(['a', 'b', 'c', 'd', 'e', 'f']), abc.all())
 
         abc &= def_
         self.assertEqual(set(['d', 'e', 'f']), abc.all())
@@ -152,7 +149,6 @@ class SetTestCase(unittest.TestCase):
         self.assert_(isinstance(abc.union('new_set', def_), cont.Set))
         self.assert_(isinstance(abc.intersection('new_set', def_), cont.Set))
         self.assert_(isinstance(abc.difference('new_set', def_), cont.Set))
-
 
     def test_access_redis_methods(self):
         s = cont.Set('new_set')
@@ -196,8 +192,7 @@ class SetTestCase(unittest.TestCase):
         def_.add('e')
         def_.add('f')
 
-        self.assertEqual(set(['a', 'b', 'c', 'd', 'e', 'f']),
-                abc.sunion(def_))
+        self.assertEqual(set(['a', 'b', 'c', 'd', 'e', 'f']), abc.sunion(def_))
 
     def test_susdiff(self):
         abc = cont.Set("abc")
@@ -209,8 +204,7 @@ class SetTestCase(unittest.TestCase):
         def_.add('b')
         def_.add('f')
 
-        self.assertEqual(set(['a',]),
-                abc.sdiff(def_))
+        self.assertEqual(set(['a']), abc.sdiff(def_))
 
 
 class ListTestCase(unittest.TestCase):
@@ -262,7 +256,7 @@ class ListTestCase(unittest.TestCase):
         num.push(['c', 'd'])
         self.assertEqual('d', num.pop())
         self.assertEqual('c', num.pop())
-        self.assertEqual(['1', '2', '4', 'a' ,'b'], num.members)
+        self.assertEqual(['1', '2', '4', 'a', 'b'], num.members)
 
         # trim
         alpha.trim(0, 1)
@@ -336,6 +330,7 @@ class ListTestCase(unittest.TestCase):
         self.assertEqual('a', l.lpop())
         self.assertEqual('b', l.rpop())
 
+
 class TypedListTestCase(unittest.TestCase):
     def setUp(self):
         self.client = redisco.get_client()
@@ -367,6 +362,7 @@ class TypedListTestCase(unittest.TestCase):
 
     def test_model_type(self):
         from redisco import models
+
         class Person(models.Model):
             name = models.Attribute()
             friend = models.ReferenceField('Person')
@@ -398,8 +394,8 @@ class SortedSetTestCase(unittest.TestCase):
         zorted = cont.SortedSet("Person:age")
         zorted.add("1", 29)
         zorted.add("2", 39)
-        zorted.add({"3" : '15', "4" : 35})
-        zorted.add({"5" : 98, "6" : 5})
+        zorted.add({"3": '15', "4": 35})
+        zorted.add({"5": 98, "6": 5})
         self.assertEqual(6, len(zorted))
         self.assertEqual(35, zorted.score("4"))
         self.assertEqual(0, zorted.rank("6"))
@@ -442,15 +438,13 @@ class HashTestCase(unittest.TestCase):
         h['real_name'] = "Richard Rahl"
 
         pulled = self.client.hgetall('hkey')
-        self.assertEqual({'name': "Richard Cypher",
-            'real_name': "Richard Rahl"}, pulled)
+        self.assertEqual({'name': "Richard Cypher", 'real_name': "Richard Rahl"}, pulled)
 
-        self.assertEqual({'name': "Richard Cypher",
-            'real_name': "Richard Rahl"}, h.dict)
+        self.assertEqual({'name': "Richard Cypher", 'real_name': "Richard Rahl"}, h.dict)
 
         self.assertEqual(['name', 'real_name'], h.keys())
         self.assertEqual(["Richard Cypher", "Richard Rahl"],
-            h.values())
+                         h.values())
 
         del h['name']
         pulled = self.client.hgetall('hkey')

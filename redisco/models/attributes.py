@@ -11,8 +11,8 @@ from redisco.containers import List
 from exceptions import FieldValidationError, MissingID
 
 __all__ = ['Attribute', 'CharField', 'ListField', 'DateTimeField',
-        'DateField', 'ReferenceField', 'Collection', 'IntegerField',
-        'FloatField', 'BooleanField', 'Counter']
+           'DateField', 'ReferenceField', 'Collection', 'IntegerField',
+           'FloatField', 'BooleanField', 'Counter']
 
 
 class Attribute(object):
@@ -210,13 +210,12 @@ class DateTimeField(Attribute):
 
     def typecast_for_storage(self, value):
         if not isinstance(value, datetime):
-            raise TypeError("%s should be datetime object, and not a %s" %
-                    (self.name, type(value)))
+            raise TypeError("%s should be datetime object, and not a %s" % (self.name, type(value)))
         if value is None:
             return None
         # Are we timezone aware ? If no, make it TimeZone Local
         if value.tzinfo is None:
-           value = value.replace(tzinfo=tzlocal())
+            value = value.replace(tzinfo=tzlocal())
         return "%d.%06d" % (float(timegm(value.utctimetuple())),  value.microsecond)
 
     def value_type(self):
@@ -245,8 +244,7 @@ class DateField(Attribute):
 
     def typecast_for_storage(self, value):
         if not isinstance(value, date):
-            raise TypeError("%s should be date object, and not a %s" %
-                    (self.name, type(value)))
+            raise TypeError("%s should be date object, and not a %s" % (self.name, type(value)))
         if value is None:
             return None
         return "%d" % float(timegm(value.timetuple()))
@@ -256,6 +254,7 @@ class DateField(Attribute):
 
     def acceptable_types(self):
         return self.value_type()
+
 
 class ListField(object):
     """Stores a list of objects.
@@ -283,7 +282,7 @@ class ListField(object):
         self.default = default or []
         from base import Model
         self._redisco_model = (isinstance(target_type, basestring) or
-            issubclass(target_type, Model))
+                               issubclass(target_type, Model))
 
     def __get__(self, instance, owner):
         try:
@@ -338,6 +337,7 @@ class ListField(object):
                 errors.extend(r)
         if errors:
             raise FieldValidationError(errors)
+
 
 class Collection(object):
     """
@@ -411,8 +411,7 @@ class ReferenceField(object):
     def __get__(self, instance, owner):
         try:
             if not hasattr(instance, '_' + self.name):
-                o = self.value_type().objects.get_by_id(
-                                    getattr(instance, self.attname))
+                o = self.value_type().objects.get_by_id(getattr(instance, self.attname))
                 setattr(instance, '_' + self.name, o)
             return getattr(instance, '_' + self.name)
         except AttributeError:

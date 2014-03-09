@@ -302,8 +302,7 @@ class Model(object):
         >>> f.name
         'Tesla'
         """
-        attrs = self.attributes.values() + self.lists.values() \
-                + self.references.values()
+        attrs = self.attributes.values() + self.lists.values() + self.references.values()
         for att in attrs:
             if att.name in kwargs:
                 att.__set__(self, kwargs[att.name])
@@ -410,7 +409,6 @@ class Model(object):
         """
         self.incr(att, -1 * val)
 
-
     @property
     def attributes_dict(self):
         """
@@ -440,7 +438,6 @@ class Model(object):
         if 'id' not in self.attributes.keys() and not self.is_new():
             h['id'] = self.id
         return h
-
 
     @property
     def id(self):
@@ -533,7 +530,7 @@ class Model(object):
         instance._id = str(id)
         instance._set_instance_keys()
         stored_attrs = instance.db.hgetall(instance._instance_key)
-        if not stored_attrs: # object does not exist
+        if not stored_attrs:  # object does not exist
             return None
         instance.load_attributes_from_redis_raw_data(stored_attrs)
         return instance
@@ -739,7 +736,6 @@ class Model(object):
         if not self.is_new():
             return "<%s %s>" % (self.key(), self.attributes_dict)
         return "<%s %s>" % (self.__class__.__name__, self.attributes_dict)
-
 
 
 def get_model_from_key(key):

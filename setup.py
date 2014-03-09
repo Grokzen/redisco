@@ -8,6 +8,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -27,11 +28,10 @@ setup(name='redisco',
       packages=['redisco', 'redisco.models'],
       test_suite='tests.all_tests',
       classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python'],
-    )
-
+          'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python']
+      )
