@@ -235,9 +235,7 @@ class DateField(Attribute):
 
     def typecast_for_read(self, value):
         try:
-            # We load as if it is UTC time
-            dt = date.fromtimestamp(float(value))
-            # And assign (ie: not convert) the UTC TimeZone
+            dt = date.fromordinal(int(value))
             return dt
         except TypeError, ValueError:
             return None
@@ -247,7 +245,7 @@ class DateField(Attribute):
             raise TypeError("%s should be date object, and not a %s" % (self.name, type(value)))
         if value is None:
             return None
-        return "%d" % float(timegm(value.timetuple()))
+        return "%d" % value.toordinal()
 
     def value_type(self):
         return date

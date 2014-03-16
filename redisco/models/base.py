@@ -571,9 +571,9 @@ class Model(object):
                     setattr(self, k, datetime.now(tz=tzutc()))
             elif isinstance(v, DateField):
                 if v.auto_now:
-                    setattr(self, k, datetime.now(tz=tzutc()))
+                    setattr(self, k, date.today())
                 if v.auto_now_add and _new:
-                    setattr(self, k, datetime.now(tz=tzutc()))
+                    setattr(self, k, date.today())
             for_storage = getattr(self, k)
             if for_storage is not None:
                 h[k] = v.typecast_for_storage(for_storage)
