@@ -423,8 +423,9 @@ class Model(object, metaclass=ModelBase):
         ...    title = models.Attribute()
         ...
         >>> f = Foo(name="Einstein", title="Mr.")
-        >>> f.attributes_dict
-        {'name': 'Einstein', 'title': 'Mr.'}
+        >>> from testfixtures import compare
+        >>> compare(f.attributes_dict, {'name': 'Einstein', 'title': 'Mr.'})
+        <identity>
 
 
         .. NOTE: the key ``id`` is present *only if* the object has been saved before.
