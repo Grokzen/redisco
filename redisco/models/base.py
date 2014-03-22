@@ -156,8 +156,8 @@ def _initialize_keys(model_class, name):
     Initializes the key of the model.
     """
     model_class._key = model_class._meta['key'] or name
-    model_class._all_key = u"%s:all" % model_class._key
-    model_class._id_gen_key = u"%s:id" % model_class._key
+    model_class._all_key = "%s:all" % model_class._key
+    model_class._id_gen_key = "%s:id" % model_class._key
 
 
 def _initialize_manager(model_class):
@@ -350,7 +350,7 @@ class Model(object, metaclass=ModelBase):
         True
         """
         if att is not None:
-            return u"%s:%s" % (self._instance_key, att)
+            return "%s:%s" % (self._instance_key, att)
         else:
             return self._instance_key
 
@@ -525,7 +525,7 @@ class Model(object, metaclass=ModelBase):
 
     @classmethod
     def instance_key(cls, id):
-        return u"%s:%s" % (cls._key, str(id))
+        return "%s:%s" % (cls._key, str(id))
 
     @classmethod
     def get_by_id(cls, id):
@@ -609,8 +609,8 @@ class Model(object, metaclass=ModelBase):
 
     def _set_instance_keys(self):
         self._instance_key = self.instance_key(self._id)
-        self._indices_key = u"%s:%s:_indices" % (self._key, self._id)
-        self._zindices_key = u"%s:%s:_zindices" % (self._key, self._id)
+        self._indices_key = "%s:%s:_indices" % (self._key, self._id)
+        self._zindices_key = "%s:%s:_zindices" % (self._key, self._id)
 
     ##############
     # Membership #

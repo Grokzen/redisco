@@ -532,7 +532,7 @@ class ModelSet(Set):
         desc = self.model_class._attributes.get(index)
         if desc:
             value = desc.typecast_for_storage(value)
-        _k = u"%s:%s:%s" % (self.model_class._key, index, value)
+        _k = "%s:%s:%s" % (self.model_class._key, index, value)
         return _k
 
     def _clone(self):
