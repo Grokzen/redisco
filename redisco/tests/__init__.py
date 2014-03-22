@@ -1,5 +1,7 @@
 import os
+import sys
 import unittest
+from redisco.tests.performance import PerformanceTestCase
 from redisco.containerstests import (SetTestCase, ListTestCase, TypedListTestCase, SortedSetTestCase, HashTestCase)
 from redisco.models.basetests import (ModelTestCase, DateFieldTestCase, FloatFieldTestCase,
                                       BooleanFieldTestCase, ListFieldTestCase, ReferenceFieldTestCase,
@@ -31,4 +33,9 @@ def all_tests():
     #suite.addTest(unittest.makeSuite(MutexTestCase))
     suite.addTest(unittest.makeSuite(HashTestCase))
     suite.addTest(unittest.makeSuite(CharFieldTestCase))
+
+    # Performance testcase take some time to perform...
+    if "--performance" in sys.argv:
+        suite.addTest(unittest.makeSuit(PerformanceTestCase))
+
     return suite

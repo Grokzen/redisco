@@ -25,6 +25,7 @@ setup(name='redisco',
       maintainer_email='mgalves@gmail.com',
       keywords=['Redis', 'model', 'container'],
       license='MIT',
+      zip_safe=False,
       packages=['redisco', 'redisco.models'],
       test_suite='tests.all_tests',
       classifiers=[

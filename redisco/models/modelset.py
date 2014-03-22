@@ -1,10 +1,10 @@
 """
 Handles the queries.
 """
-from attributes import IntegerField, DateTimeField
+from .attributes import IntegerField, DateTimeField
 import redisco
 from redisco.containers import SortedSet, Set, List, NonPersistentList
-from exceptions import AttributeNotIndexed
+from .exceptions import AttributeNotIndexed
 
 
 # Model Set
@@ -55,7 +55,8 @@ class ModelSet(Set):
             m = self._set[:30]
         else:
             m = self._set
-        s = map(lambda id: self._get_item_with_id(id), m)
+        # s = map(lambda id: self._get_item_with_id(id), m)
+        s = [self._get_item_with_id(id) for id in m]
         return "%s" % s
 
     def __iter__(self):
@@ -173,7 +174,7 @@ class ModelSet(Set):
         >>> Foo(name="Edison", exclude_me=True).save()
         True
         >>> Foo.objects.exclude(exclude_me=True).first().name
-        u'Einstein'
+        'Einstein'
         >>> [f.delete() for f in Foo.objects.all()] # doctest: +ELLIPSIS
         [...]
         """
@@ -207,9 +208,9 @@ class ModelSet(Set):
         >>> Foo(name="Zztop").save()
         True
         >>> Foo.objects.all().order("-name").first().name
-        u'Zztop'
+        'Zztop'
         >>> Foo.objects.all().order("name").first().name
-        u'Abba'
+        'Abba'
         >>> [f.delete() for f in Foo.objects.all()] # doctest: +ELLIPSIS
         [...]
         """
@@ -278,7 +279,7 @@ class ModelSet(Set):
         [...]
         """
         opts = {}
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             if k in self.model_class._indices:
                 opts[k] = v
         o = self.filter(**opts).first()
@@ -295,14 +296,10 @@ class ModelSet(Set):
         >>> class Foo(models.Model):
         ...     name = models.Attribute(indexed=True)
         ...
-        >>> Foo.objects.create(name="Obama")
-        <Foo:12 {'name': 'Obama', 'id': '12'}>
-        >>> Foo.objects.create(name="Hollande")
-        <Foo:13 {'name': 'Hollande', 'id': '13'}>
-        >>> Foo.objects.create(name="Merkel")
-        <Foo:14 {'name': 'Merkel', 'id': '14'}>
-        >>> Foo.objects.create(name="Merkel")
-        <Foo:15 {'name': 'Merkel', 'id': '15'}>
+        >>> c = Foo.objects.create(name="Obama")
+        >>> c = Foo.objects.create(name="Hollande")
+        >>> c = Foo.objects.create(name="Merkel")
+        >>> c = Foo.objects.create(name="Merkel")
         >>> a = Foo.objects.get_indexed_values("name")
         >>> b = ["Hollande", "Merkel", "Obama"]
         >>> [i in b for i in a]
@@ -357,7 +354,7 @@ class ModelSet(Set):
         :return: the new Set
         """
         indices = []
-        for k, v in self._filters.iteritems():
+        for k, v in self._filters.items():
             index = self._build_key_from_filter_item(k, v)
             if k not in self.model_class._indices:
                 raise AttributeNotIndexed("Attribute %s is not indexed in %s class." % (k, self.model_class.__name__))
@@ -379,7 +376,7 @@ class ModelSet(Set):
         :return: the new Set
         """
         indices = []
-        for k, v in self._exclusions.iteritems():
+        for k, v in self._exclusions.items():
             index = self._build_key_from_filter_item(k, v)
             if k not in self.model_class._indices:
                 raise AttributeNotIndexed("Attribute %s is not indexed in %s class." % (k, self.model_class.__name__))
@@ -399,7 +396,7 @@ class ModelSet(Set):
         :return: a SortedSet with the ids.
 
         """
-        k, v = self._zfilters[0].items()[0]
+        k, v = next(iter(self._zfilters[0].items()))
         try:
             att, op = k.split('__')
         except ValueError:
@@ -548,6 +545,7 @@ class ModelSet(Set):
         """
         klass = self.__class__
         c = klass(self.model_class)
+
         if self._filters:
             c._filters = self._filters
         if self._exclusions:

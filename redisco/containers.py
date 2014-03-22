@@ -35,7 +35,7 @@ class Container(object):
         1
         >>> s.clear()
         >>> s.members
-        set([])
+        set()
 
 
         """
@@ -101,8 +101,9 @@ class Set(Container):
         3
         >>> s.add(["4"])
         1
-        >>> print s
-        <Set 'test' set(['1', '3', '2', '4'])>
+        >>> import testfixtures
+        >>> testfixtures.compare(s.members, {'4', '3', '2', '1'})
+        <identity>
         >>> s.clear()
 
         """
@@ -137,7 +138,7 @@ class Set(Container):
         >>> s.spop()
         '1'
         >>> s.members
-        set([])
+        set()
 
         """
         return self.db.spop(self.key)
@@ -255,17 +256,18 @@ class Set(Container):
         2
         >>> s3 = s1.union('key3', s2)
         >>> s3.key
-        u'key3'
-        >>> s3.members
-        set(['a', 'c', 'b', 'e', 'd'])
+        'key3'
+        >>> import testfixtures
+        >>> testfixtures.compare(s3.members, {'a', 'c', 'b', 'e', 'd'})
+        <identity>
         >>> s1.clear()
         >>> s2.clear()
         >>> s3.clear()
 
         """
-        if not isinstance(key, str) and not isinstance(key, unicode):
-            raise ValueError("Expect a (unicode) string as key")
-        key = unicode(key)
+        if not isinstance(key, str):
+            raise ValueError("Expect a string as key")
+        key = str(key)
 
         self.db.sunionstore(key, [self.key] + [o.key for o in other_sets])
         return Set(key)
@@ -286,16 +288,16 @@ class Set(Container):
         2
         >>> s3 = s1.intersection('key3', s2)
         >>> s3.key
-        u'key3'
+        'key3'
         >>> s3.members
-        set(['c'])
+        {'c'}
         >>> s1.clear()
         >>> s2.clear()
         >>> s3.clear()
         """
-        if not isinstance(key, str) and not isinstance(key, unicode):
-            raise ValueError("Expect a (unicode) string as key")
-        key = unicode(key)
+        if not isinstance(key, str):
+            raise ValueError("Expect a string as key")
+        key = str(key)
 
         self.db.sinterstore(key, [self.key] + [o.key for o in other_sets])
         return Set(key)
@@ -316,16 +318,17 @@ class Set(Container):
         2
         >>> s3 = s1.difference('key3', s2)
         >>> s3.key
-        u'key3'
-        >>> s3.members
-        set(['a', 'b'])
+        'key3'
+        >>> import testfixtures
+        >>> testfixtures.compare(s3.members, {'a', 'b'})
+        <identity>
         >>> s1.clear()
         >>> s2.clear()
         >>> s3.clear()
         """
-        if not isinstance(key, str) and not isinstance(key, unicode):
-            raise ValueError("Expect a (unicode) string as key")
-        key = unicode(key)
+        if not isinstance(key, str):
+            raise ValueError("Expect a string as key")
+        key = str(key)
 
         self.db.sdiffstore(key, [self.key] + [o.key for o in other_sets])
         return Set(key)
@@ -501,7 +504,7 @@ class List(Container):
 
         >>> l = List("test")
         >>> l.push(['a', 'b', 'c', 'd'])
-        4L
+        4
         >>> l.lrange(1, 2)
         ['b', 'c']
         >>> l.clear()
@@ -518,7 +521,7 @@ class List(Container):
 
         >>> l = List("test")
         >>> l.lpush(['a', 'b'])
-        2L
+        2
         >>> l.clear()
         """
         return self.db.lpush(self.key, *_parse_values(values))
@@ -532,9 +535,9 @@ class List(Container):
 
         >>> l = List("test")
         >>> l.lpush(['a', 'b'])
-        2L
+        2
         >>> l.rpush(['c', 'd'])
-        4L
+        4
         >>> l.members
         ['b', 'a', 'c', 'd']
         >>> l.clear()
@@ -585,7 +588,7 @@ class List(Container):
 
         >>> l = List('list1')
         >>> l.push(['a', 'b', 'c'])
-        3L
+        3
         >>> l.rpoplpush('list2')
         'c'
         >>> l2 = List('list2')
@@ -652,7 +655,7 @@ class List(Container):
 
         >>> l = List('test')
         >>> l.push(['a', 'b', 'c'])
-        3L
+        3
         >>> l.lset(0, 'e')
         True
         >>> l.members
@@ -692,7 +695,7 @@ class TypedList(object):
 
     If target_type is not a redisco model class, the target_type should
     also a callable that casts the (string) value of a list element into
-    target_type. E.g. str, unicode, int, float -- using this format:
+    target_type. E.g. str, int, float -- using this format:
 
         target_type(string_val_of_list_elem, *type_args, **type_kwargs)
 
@@ -704,13 +707,13 @@ class TypedList(object):
         self.klass = self.value_type(target_type)
         self._klass_args = type_args
         self._klass_kwargs = type_kwargs
-        from models.base import Model
+        from .models.base import Model
         self._redisco_model = issubclass(self.klass, Model)
 
     def value_type(self, target_type):
-        if isinstance(target_type, basestring):
+        if isinstance(target_type, str):
             t = target_type
-            from models.base import get_model_from_key
+            from .models.base import get_model_from_key
             target_type = get_model_from_key(target_type)
             if target_type is None:
                 raise ValueError("Unknown Redisco class %s" % t)
@@ -724,7 +727,7 @@ class TypedList(object):
 
     def typecast_iter(self, values):
         if self._redisco_model:
-            return filter(lambda o: o is not None, [self.klass.objects.get_by_id(v) for v in values])
+            return [o for o in [self.klass.objects.get_by_id(v) for v in values] if o is not None]
         else:
             return [self.klass(v, *self._klass_args, **self._klass_kwargs) for v in values]
 
@@ -758,7 +761,7 @@ class TypedList(object):
         self.list[index] = self.typecast_stor(value)
 
     def __iter__(self):
-        for i in xrange(len(self.list)):
+        for i in range(len(self.list)):
             yield self[i]
 
     def __repr__(self):
@@ -1207,7 +1210,7 @@ class Hash(Container, collections.MutableMapping):
 
         >>> h = Hash("foo")
         >>> h.hset("bar", "value")
-        1L
+        1
         >>> h.clear()
         """
         return self.db.hset(self.key, member, value)
@@ -1221,7 +1224,7 @@ class Hash(Container, collections.MutableMapping):
 
         >>> h = Hash("foo")
         >>> h.hset("bar", "value")
-        1L
+        1
         >>> h.hdel("bar")
         1
         >>> h.clear()
@@ -1269,9 +1272,9 @@ class Hash(Container, collections.MutableMapping):
 
         >>> h = Hash("foo")
         >>> h.hincrby("bar", 10)
-        10L
+        10
         >>> h.hincrby("bar", 2)
-        12L
+        12
         >>> h.clear()
         """
         return self.db.hincrby(self.key, field, increment)

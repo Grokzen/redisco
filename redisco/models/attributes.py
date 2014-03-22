@@ -8,7 +8,7 @@ from datetime import datetime, date
 from dateutil.tz import tzutc, tzlocal
 from calendar import timegm
 from redisco.containers import List
-from exceptions import FieldValidationError, MissingID
+from .exceptions import FieldValidationError, MissingID
 
 __all__ = ['Attribute', 'CharField', 'ListField', 'DateTimeField',
            'DateField', 'ReferenceField', 'Collection', 'IntegerField',
@@ -65,20 +65,20 @@ class Attribute(object):
     def typecast_for_read(self, value):
         """Typecasts the value for reading from Redis."""
         # The redis client encodes all unicode data to utf-8 by default.
-        return value.decode('utf-8')
+        return value
 
     def typecast_for_storage(self, value):
         """Typecasts the value for storing to Redis."""
         try:
-            return unicode(value)
+            return str(value)
         except UnicodeError:
             return value.decode('utf-8')
 
     def value_type(self):
-        return unicode
+        return str
 
     def acceptable_types(self):
-        return basestring
+        return str
 
     def validate(self, instance):
         val = getattr(instance, self.name)
@@ -88,7 +88,7 @@ class Attribute(object):
             errors.append((self.name, 'bad type',))
         # validate first standard stuff
         if self.required:
-            if val is None or not unicode(val).strip():
+            if val is None or not str(val).strip():
                 errors.append((self.name, 'required'))
         # validate uniquness
         if val and self.unique:
@@ -162,13 +162,13 @@ class IntegerField(Attribute):
     def typecast_for_storage(self, value):
         if value is None:
             return "0"
-        return unicode(value)
+        return str(value)
 
     def value_type(self):
         return int
 
     def acceptable_types(self):
-        return (int, long)
+        return int
 
 
 class FloatField(Attribute):
@@ -205,7 +205,7 @@ class DateTimeField(Attribute):
             dt = datetime.fromtimestamp(float(value), tzutc())
             # And gently override (ie: not convert) to the TZ to UTC
             return dt
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             return None
 
     def typecast_for_storage(self, value):
@@ -239,7 +239,7 @@ class DateField(Attribute):
             dt = date.fromtimestamp(float(value))
             # And assign (ie: not convert) the UTC TimeZone
             return dt
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             return None
 
     def typecast_for_storage(self, value):
@@ -263,7 +263,7 @@ class ListField(object):
 
     If target_type is not a redisco model class, the target_type should
     also a callable that casts the (string) value of a list element into
-    target_type. E.g. str, unicode, int, float.
+    target_type. E.g. str, int, float.
 
     ListField also accepts a string that refers to a redisco model.
 
@@ -280,8 +280,8 @@ class ListField(object):
         self.required = required
         self.validator = validator
         self.default = default or []
-        from base import Model
-        self._redisco_model = (isinstance(target_type, basestring) or
+        from .base import Model
+        self._redisco_model = (isinstance(target_type, str) or
                                issubclass(target_type, Model))
 
     def __get__(self, instance, owner):
@@ -296,7 +296,8 @@ class ListField(object):
             if val is not None:
                 klass = self.value_type()
                 if self._redisco_model:
-                    val = filter(lambda o: o is not None, [klass.objects.get_by_id(v) for v in val])
+                    # val = filter(lambda o: o is not None, [klass.objects.get_by_id(v) for v in val])
+                    val = [o for o in [klass.objects.get_by_id(v) for v in val] if o is not None]
                 else:
                     val = [klass(v) for v in val]
             self.__set__(instance, val)
@@ -306,9 +307,9 @@ class ListField(object):
         setattr(instance, '_' + self.name, value)
 
     def value_type(self):
-        if isinstance(self._target_type, basestring):
+        if isinstance(self._target_type, str):
             t = self._target_type
-            from base import get_model_from_key
+            from .base import get_model_from_key
             self._target_type = get_model_from_key(self._target_type)
             if self._target_type is None:
                 raise ValueError("Unknown Redisco class %s" % t)
@@ -455,7 +456,7 @@ class ReferenceField(object):
 class Counter(IntegerField):
     def __init__(self, **kwargs):
         super(Counter, self).__init__(**kwargs)
-        if not kwargs.has_key('default') or self.default is None:
+        if 'default' not in kwargs or self.default is None:
             self.default = 0
         self.zindexable = True
 

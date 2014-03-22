@@ -1,6 +1,6 @@
-from base import *
-from attributes import *
-from exceptions import *
+from .base import *
+from .attributes import *
+from .exceptions import *
 
 __all__ = ['Model', 'Attribute', 'BooleanField', 'IntegerField',
            'Counter', 'FloatField', 'DateTimeField', 'DateField',

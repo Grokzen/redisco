@@ -1,29 +1,53 @@
 =======
 Redisco
 =======
+
 Python Containers and Simple Models for Redis
+
+
 
 Description
 -----------
+
 Redisco allows you to store objects in Redis_. It is inspired by the Ruby library
 Ohm_ and its design and code are loosely based on Ohm and the Django ORM.
 It is built on top of redis-py_. It includes container classes that allow
 easier access to Redis sets, lists, and sorted sets.
 
 
+
 Installation
 ------------
-Redisco requires redis-py 2.0.0 so get it first.
+
+Redisco requires redis-py >= 2.7.5
+
+Install it by running following command
 
 ::
 
     pip install redis
 
-Then install redisco.
+Then install redisco
 
 ::
 
     pip install redisco
+
+
+
+How to run tests
+----------------
+
+To run tests you must install the following:
+
+ - nose==1.3.1
+ - testfixtures==3.0.1
+
+Run tests with:
+
+::
+
+    nosetests --with-doctest
 
 
 
@@ -32,13 +56,14 @@ Documentation
 The documentation is available at : https://redisco.readthedocs.org
 
 
+
 test status
 -----------
 
 - master
 
-.. image:: https://secure.travis-ci.org/kiddouk/redisco.png?branch=master
-Well, expect things to be broken. Really broken.
+.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3
+
 
 
 Models
@@ -62,6 +87,7 @@ Models
     'Conchita'
     >>> conchita.created_at
     datetime.datetime(2010, 5, 24, 16, 0, 31, 954704)
+
 
 
 Model Attributes
@@ -95,6 +121,7 @@ ReferenceField
 
 ListField
     Can store a list of unicode, int, float, as well as other redisco models.
+
 
 
 Attribute Options
@@ -131,6 +158,7 @@ auto_now
     is saved. Default is False.
 
 
+
 Class options
 -------------
 
@@ -157,6 +185,8 @@ back scene.
 ``db`` object will be used instead of the global redisco ``redis_client``
 ``key`` will be used as the main key in the redis Hash (and sub objects)
 instead of the class name.
+
+
 
 Saving and Validating
 ---------------------
@@ -198,6 +228,7 @@ to validate instances not related to attributes.
     [('name', 'it is me')]
 
 
+
 Queries
 -------
 
@@ -211,6 +242,8 @@ attribute.
     Person.objects.filter(name='Conchita').first()
     Person.objects.all().order('name')
     Person.objects.filter(fave_colors='Red')
+
+
 
 Ranged Queries
 --------------
@@ -226,8 +259,10 @@ and FloatField. The zfilter method of the manager is used for these queries.
     Person.objects.zfilter(created_at__in=(datetime(2010, 4, 20, 5, 2, 0), datetime(2010, 5, 1)))
 
 
+
 Containers
 ----------
+
 Redisco has three containers that roughly match Redis's supported data
 structures: lists, sets, sorted set. Anything done to the container is
 persisted to Redis.
@@ -309,6 +344,7 @@ Dicts/Hashes
     {'name': 'Richard Cypher', 'real_name': 'Richard Rahl'}
 
 
+
 Additional Info on Containers
 -----------------------------
 
@@ -329,6 +365,7 @@ can be accessed from the container itself.
     >>> h.hset('name', 'Richard Rahl')
     >>> h
     <Hash 'hkey' {'name': 'Richard Rahl'}>
+
 
 
 Connecting to Redis
@@ -353,6 +390,7 @@ That client object will be used instead of the default.
     >>> import redis
     >>> r = redis.Redis(host='localhost', port=6381)
     >>> Set('someset', r)
+
 
 
 Credits

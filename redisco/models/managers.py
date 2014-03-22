@@ -1,4 +1,4 @@
-from modelset import ModelSet
+from .modelset import ModelSet
 
 ############
 # Managers #
@@ -10,7 +10,7 @@ class ManagerDescriptor(object):
         self.manager = manager
 
     def __get__(self, instance, owner):
-        if instance != None:
+        if instance is not None:
             raise AttributeError
         return self.manager
 

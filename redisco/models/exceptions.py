@@ -4,7 +4,7 @@
 from redis import WatchError
 
 
-class Error(StandardError):
+class Error(Exception):
     pass
 
 
