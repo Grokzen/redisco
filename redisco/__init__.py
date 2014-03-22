@@ -2,6 +2,10 @@
 
 import redis
 
+# Fix a bug in redis-py when using it for python3 and withouth hiredis
+from redis import connection
+connection.DefaultParser.encoding = "UTF-8"
+
 
 class Client(object):
     def __init__(self, **kwargs):
