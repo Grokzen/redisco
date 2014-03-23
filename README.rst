@@ -62,7 +62,7 @@ test status
 
 - master
 
-.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3
+.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3   :target: https://travis-ci.org/Grokzen/redisco
 
 
 
