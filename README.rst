@@ -9,10 +9,12 @@ Python Containers and Simple Models for Redis
 Description
 -----------
 
-Redisco allows you to store objects in Redis_. It is inspired by the Ruby library
-Ohm_ and its design and code are loosely based on Ohm and the Django ORM.
-It is built on top of redis-py_. It includes container classes that allow
-easier access to Redis sets, lists, and sorted sets.
+Redisco allows you to store objects in Redis_. It is inspired by the Ruby
+library Ohm_ and its design and code are loosely based on Ohm and the
+Django ORM.  It is built on top of redis-py_.
+
+It includes container classes that allow easier access to Redis sets, lists,
+and sorted sets.
 
 
 
@@ -117,7 +119,7 @@ Model Attributes
 
 Attribute
     Stores unicode strings. If used for large bodies of text,
-    turn indexing of this field off by setting indexed=True.
+    turn indexing of this field off by setting indexed=False.
 
 IntegerField
     Stores an int. Ints are stringified using unicode() before saving to
@@ -167,7 +169,7 @@ validator
     with the first item is the field name, and the second item is the error.
 
 unique
-    The field must be unique. Default is False.
+    The field must be unique across models. Default is False.
 
 DateField and DateTimeField Options
 
@@ -290,6 +292,9 @@ structures: lists, sets, sorted set. Anything done to the container is
 persisted to Redis.
 
 Sets
+
+::
+
     >>> from redisco.containers import Set
     >>> s = Set('myset')
     >>> s.add('apple')
@@ -315,6 +320,9 @@ Sets
     set(['kiwi', 'orange', 'guava', 'apple'])
 
 Lists
+
+::
+
     >>> from redisco.containers import List
     >>> l = List('alpha')
     >>> l.append('a')
@@ -333,6 +341,9 @@ Lists
 
 
 Sorted Sets
+
+::
+
     >>> zset = SortedSet('zset')
     >>> zset.members
     ['d', 'a', 'b', 'c']
@@ -355,6 +366,9 @@ Sorted Sets
 
 
 Dicts/Hashes
+
+::
+
     >>> h = cont.Hash('hkey')
     >>> len(h)
     0
