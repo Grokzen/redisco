@@ -34,11 +34,13 @@ Install it by running following command
 
     pip install redis
 
-Then install redisco
+To install this version of redisco clone the git repo and run
 
 ::
 
-    pip install redisco
+    python setup.py install
+    or
+    pip install .
 
 
 
