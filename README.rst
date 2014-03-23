@@ -84,29 +84,26 @@ The documentation is available at : https://redisco.readthedocs.org
 test status
 -----------
 
-- master:
 
-Travis:
+master branch
+*************
 
 .. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=master
    :target: https://travis-ci.org/Grokzen/redisco
 
-Coveralls:
-
 .. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=master
    :target: https://coveralls.io/r/Grokzen/redisco?branch=master
 
-- python3
 
-Travis:
+python3 branch
+**************
 
 .. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3
    :target: https://travis-ci.org/Grokzen/redisco
 
-Coveralls:
-
 .. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=python3
    :target: https://coveralls.io/r/Grokzen/redisco?branch=python3
+
 
 
 
