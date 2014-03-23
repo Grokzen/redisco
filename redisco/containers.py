@@ -2,7 +2,6 @@
 # doctest: +ELLIPSIS
 
 import collections
-from functools import partial
 from . import default_expire_time
 
 

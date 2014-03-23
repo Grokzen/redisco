@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+All tests for base.py
+"""
+# python std lib
 import time
-from threading import Thread
-import redis
-import redisco
 import unittest
 from datetime import date
+from threading import Thread
+
+# redisco impotrs
+import redisco
 from redisco import models
 from redisco.models.base import Mutex
+
+# 3rd party imports
+import redis
 from dateutil.tz import tzlocal
 
 

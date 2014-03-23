@@ -1,4 +1,9 @@
-from .modelset import ModelSet
+# -*- coding: utf-8 -*-
+"""
+Redisco manager impl
+"""
+# redisco imports
+from redisco.models.modelset import ModelSet
 
 ############
 # Managers #

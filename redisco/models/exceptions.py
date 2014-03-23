@@ -1,6 +1,7 @@
-##########
-# ERRORS #
-##########
+# -*- coding: utf-8 -*-
+"""
+All errors used by redisco
+"""
 from redis import WatchError
 
 

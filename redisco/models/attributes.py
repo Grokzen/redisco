@@ -2,13 +2,17 @@
 """
 Defines the fields that can be added to redisco models.
 """
-import time
+# python std lib
 import sys
 from datetime import datetime, date
-from dateutil.tz import tzutc, tzlocal
 from calendar import timegm
+
+# redisco imports
 from redisco.containers import List
-from .exceptions import FieldValidationError, MissingID
+from redisco.models.exceptions import FieldValidationError, MissingID
+
+# 3rd party imports
+from dateutil.tz import tzutc, tzlocal
 
 __all__ = ['Attribute', 'CharField', 'ListField', 'DateTimeField',
            'DateField', 'ReferenceField', 'Collection', 'IntegerField',

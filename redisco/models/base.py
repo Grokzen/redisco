@@ -1,15 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+# TODO: Add documentation here
+"""
 # python std lib
 import time
-from datetime import datetime, date
+from datetime import datetime
 from dateutil.tz import tzutc
 
 # redisco imports
 import redisco
-from redisco.containers import Set, List, SortedSet, NonPersistentList
-from .attributes import *
-from .managers import ManagerDescriptor, Manager
-from .exceptions import FieldValidationError, MissingID, BadKeyError, WatchError
-from .attributes import Counter
+from redisco.containers import Set, List
+from redisco.models.attributes import Attribute
+from redisco.models.attributes import DateTimeField
+from redisco.models.attributes import DateField
+from redisco.models.attributes import ListField
+from redisco.models.attributes import ReferenceField
+from redisco.models.attributes import Counter
+from redisco.models.managers import ManagerDescriptor, Manager
+from redisco.models.exceptions import FieldValidationError, MissingID, BadKeyError, WatchError
 
 __all__ = ['Model', 'from_key']
 

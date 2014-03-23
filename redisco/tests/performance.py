@@ -1,11 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*
-
+"""
+performance test for redisco
+"""
+# python std lib
 import sys
-import redis
-import redisco
 import unittest
+
+# redisco imports
+import redisco
 from redisco import models
+
+# 3rd party imports
+import redis
 
 
 class PerformanceTestCase(unittest.TestCase):

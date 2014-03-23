@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 Handles the queries.
 """
-from .attributes import IntegerField, DateTimeField
+# redisco imports
 import redisco
-from redisco.containers import SortedSet, Set, List, NonPersistentList
-from .exceptions import AttributeNotIndexed
+from redisco.containers import SortedSet, Set, List
+from redisco.models.exceptions import AttributeNotIndexed
 
 
 # Model Set
