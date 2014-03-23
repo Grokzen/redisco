@@ -23,6 +23,19 @@ This branch is targets to work only with python3. The plan is to have an version
 
 
 
+hiredis support
+---------------
+
+This branch do not install hiredis by default but it is supported to use with this branch.
+
+To install hiredis run following command
+
+::
+
+    pip install hiredis
+
+
+
 Installation
 ------------
 
