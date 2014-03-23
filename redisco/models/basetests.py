@@ -915,7 +915,6 @@ class ReferenceFieldTestCase(RediscoTestCase):
 
         Word.objects.create()
         word = Word.objects.all()[0]
-        print("KEYS", self.client.keys("*"))
         Character.objects.create(n=32, m='a', word=word)
         Character.objects.create(n=33, m='b', word=word)
         Character.objects.create(n=34, m='c', word=word)
