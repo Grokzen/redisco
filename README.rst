@@ -16,6 +16,13 @@ easier access to Redis sets, lists, and sorted sets.
 
 
 
+Python 3 support
+----------------
+
+This branch is targets to work only with python3. The plan is to have an version of redisco that works with django running on python3. In this branch will never have any support for python2 and all backwards compability will be removed.
+
+
+
 Installation
 ------------
 
