@@ -8,9 +8,12 @@ env:
 # command to install redisco with dependencies
 install:
   - pip install . --use-mirrors
-  - pip install testfixtures==3.0.1
+  - pip install testfixtures==3.0.1 nose coverage python-coveralls --use-mirrors
   - "if [[ $TEST_HIREDIS == '1' ]]; then pip install hiredis --use-mirrors; fi"
 # command to run tests
-script: nosetests --with-doctest
+script:
+  - nosetests --with-doctest --cover-erase --with-coverage --cover-branches --cover-package=redisco
 services:
   - redis-server
+after_success:
+  - coveralls
