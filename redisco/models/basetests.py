@@ -154,7 +154,7 @@ class ModelTestCase(RediscoTestCase):
         self.assertEqual('Goose', p1.last_name)
 
     def test_manager_create(self):
-        person = Person.objects.create(first_name="Granny", last_name="Goose")
+        Person.objects.create(first_name="Granny", last_name="Goose")
 
         p1 = Person.objects.get_by_id(1)
         self.assertEqual('Granny', p1.first_name)
@@ -164,7 +164,7 @@ class ModelTestCase(RediscoTestCase):
         person = Person.objects.create(first_name="Granny", last_name="Goose")
         db = person.db
         key = person.key(att='_indices')
-        ckey = Person._key
+        # ckey = Person._key
 
         index = 'Person:first_name:%s' % "Granny"
         self.assertTrue(index in db.smembers(key))
@@ -185,7 +185,7 @@ class ModelTestCase(RediscoTestCase):
             name = models.CharField(required=True)
             created_on = models.DateField(required=True)
 
-        from datetime import date
+        # from datetime import date
 
         Event.objects.create(name="Event #1", created_on=date.today())
         Event.objects.create(name="Event #2", created_on=date.today())
@@ -1021,6 +1021,16 @@ class MutexTestCase(RediscoTestCase):
         self.p1 = Person.objects.create(first_name="Dick")
         self.p2 = Person.objects.get_by_id(self.p1.id)
 
+    def test_no_block(self):
+        with Mutex(self.p1):
+            self.assertTrue(1)
+
+    def test_double_acquire(self):
+        x = Mutex(self.p1)
+        y = Mutex(self.p1)
+        self.assertEquals(x._lock_key, y._lock_key)
+        self.assertEquals(x._lock_mutex, y._lock_mutex)
+
     def test_instance_should_not_modify_locked(self):
         time1, time2 = {}, {}
 
@@ -1044,5 +1054,8 @@ class MutexTestCase(RediscoTestCase):
 
     def test_lock_expired(self):
         Mutex(self.p1).lock()
-        with Mutex(self.p2):
-            self.assert_(True)
+        # with Mutex(self.p2):
+        #     self.assert_(True)
+        with self.assertRaises(RuntimeError):
+            with Mutex(self.p2, timeout=1):
+                self.assertTrue(1)

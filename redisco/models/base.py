@@ -3,21 +3,23 @@
 # TODO: Add documentation here
 """
 # python std lib
-import time
 from datetime import datetime
 from dateutil.tz import tzutc
 
 # redisco imports
 import redisco
-from redisco.containers import Set, List
+from redisco.containers import List
+from redisco.containers import Set
 from redisco.models.attributes import Attribute
-from redisco.models.attributes import DateTimeField
+from redisco.models.attributes import Counter
 from redisco.models.attributes import DateField
+from redisco.models.attributes import DateTimeField
 from redisco.models.attributes import ListField
 from redisco.models.attributes import ReferenceField
-from redisco.models.attributes import Counter
+from redisco.models.exceptions import BadKeyError
+from redisco.models.exceptions import FieldValidationError
+from redisco.models.exceptions import MissingID
 from redisco.models.managers import ManagerDescriptor, Manager
-from redisco.models.exceptions import FieldValidationError, MissingID, BadKeyError, WatchError
 
 __all__ = ['Model', 'from_key']
 
@@ -780,8 +782,41 @@ def from_key(key):
 
 
 class Mutex(object):
-    def __init__(self, instance):
+    # def __init__(self, instance):
+    #     self.instance = instance
+
+    """Lock concept using blpop, modified from example provided by
+    Apostolis Bessas at https://github.com/mpessas/python-redis-lock/"""
+    def __init__(self, instance, timeout=60):
         self.instance = instance
+        self._lock_key = instance.key('_lock')
+        self._lock_mutex = instance.key('_mutex')
+        self._timeout = timeout
+        self._init_mutex()
+
+    @property
+    def mutex_key(self):
+        return self._mutex
+
+    def lock(self):
+        """Lock and block - using redis blpop functionality.
+
+        Raises:
+            RuntimeError in the case of synchronization error
+        """
+        res = self.instance.db.blpop(self._lock_mutex, self._timeout)
+        if res is None:
+            raise RuntimeError
+
+    def unlock(self):
+        self.instance.db.rpush(self._lock_mutex, 1)
+
+    def _init_mutex(self):
+        """Use a seperate key to check for the existence of the mutex so that
+        we can utilize getset, which it atomic"""
+        exists = self.instance.db.getset(self._lock_key, 1)
+        if exists is None:
+            self.instance.db.lpush(self._lock_mutex, 1)
 
     def __enter__(self):
         self.lock()
@@ -789,31 +824,3 @@ class Mutex(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.unlock()
-
-    def lock(self):
-        o = self.instance
-        _lock_key = o.key('_lock')
-        with o.db.pipeline() as pipe:
-            while True:
-                try:
-                    pipe.watch(_lock_key)
-                    if o.db.exists(_lock_key) and not self.lock_has_expired(o.db.get(_lock_key)):
-                        continue
-
-                    pipe.multi()
-                    pipe.set(_lock_key, self.lock_timeout).execute()
-                    break
-
-                except WatchError:
-                    time.sleep(0.5)
-                    continue
-
-    def lock_has_expired(self, lock):
-        return float(lock) < time.time()
-
-    def unlock(self):
-        self.instance.db.delete(self.instance.key('_lock'))
-
-    @property
-    def lock_timeout(self):
-        return "%f" % (time.time() + 1.0)
