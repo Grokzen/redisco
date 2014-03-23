@@ -88,21 +88,25 @@ test status
 
 Travis:
 
-.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=master   :target: https://travis-ci.org/Grokzen/redisco
+.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=master
+   :target: https://travis-ci.org/Grokzen/redisco
 
 Coveralls:
 
-.. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=master :target: https://coveralls.io/r/Grokzen/redisco?branch=master
+.. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=master
+   :target: https://coveralls.io/r/Grokzen/redisco?branch=master
 
 - python3
 
 Travis:
 
-.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3   :target: https://travis-ci.org/Grokzen/redisco
+.. image:: https://travis-ci.org/Grokzen/redisco.svg?branch=python3
+   :target: https://travis-ci.org/Grokzen/redisco
 
 Coveralls:
 
-.. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=python3 :target: https://coveralls.io/r/Grokzen/redisco?branch=python3
+.. image:: https://coveralls.io/repos/Grokzen/redisco/badge.png?branch=python3
+   :target: https://coveralls.io/r/Grokzen/redisco?branch=python3
 
 
 
