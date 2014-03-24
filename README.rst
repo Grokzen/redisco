@@ -18,23 +18,26 @@ and sorted sets.
 
 
 
+Documentation
+-------------
+
+The official documentation is available at : https://redisco.readthedocs.org
+
+
+
 Python 3 support
 ----------------
 
 This branch is targets to work only with python3. The plan is to have an version of redisco that works with django running on python3. In this branch will never have any support for python2 and all backwards compability will be removed.
 
+Supported python branches:
 
+- python 3.2.x
+- python 3.3.x
 
-hiredis support
----------------
+Soon to be supported:
 
-This branch do not install hiredis by default but it is supported to use with this branch.
-
-To install hiredis run following command
-
-::
-
-    pip install hiredis
+- python 3.4.x
 
 
 
@@ -59,6 +62,19 @@ To install this version of redisco clone the git repo and run
 
 
 
+hiredis support
+---------------
+
+This branch do not install hiredis by default but it is supported to use with this branch.
+
+To install hiredis run following command
+
+::
+
+    pip install hiredis
+
+
+
 How to run tests
 ----------------
 
@@ -72,12 +88,6 @@ Run tests with:
 ::
 
     nosetests --with-doctest
-
-
-
-Documentation
--------------
-The documentation is available at : https://redisco.readthedocs.org
 
 
 
