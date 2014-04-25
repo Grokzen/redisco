@@ -75,6 +75,26 @@ To install hiredis run following command
 
 
 
+Docker support
+--------------
+
+To make testing easier a redis-server can be runned inside a Docker enviroment. It should only be used to run the test suite of redisco.
+
+Makefile contains targets that will build and run the docker image. The targets are
+
+::
+
+    make docker-build
+    make docker-run
+
+or combine them into one command via
+
+::
+
+    make docker-build-run
+
+
+
 How to run tests
 ----------------
 
