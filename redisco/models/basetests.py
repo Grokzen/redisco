@@ -3,6 +3,7 @@
 All tests for base.py
 """
 # python std lib
+import sys
 import time
 import unittest
 from datetime import date
@@ -223,7 +224,13 @@ class ModelTestCase(RediscoTestCase):
 
             class Meta:
                 indices = ['full_name']
-                db = redis.Redis(db=8)
+                kwargs = {"db": 8}
+                
+                # Only decode responses if running python3 series
+                if sys.version_info > (3, 0, 0):
+                    kwargs["decode_responses"] = True
+                
+                db = redis.Redis(**kwargs)
 
         DifferentPerson.objects.create(first_name="Granny", last_name="Goose")
         DifferentPerson.objects.create(first_name="Clark", last_name="Kent")
