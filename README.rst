@@ -100,8 +100,8 @@ How to run tests
 
 To run tests you must install the following:
 
- - nose==1.3.1
- - testfixtures==3.0.1
+- nose==1.3.1
+- testfixtures==3.0.1
 
 Run tests with:
 
