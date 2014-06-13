@@ -930,10 +930,10 @@ class SortedSet(Container):
         """
         _members = []
         if not isinstance(members, dict):
-            _members = [members, score]
+            _members = [score, members]
         else:
             for member, score in members.items():
-                _members += [member, score]
+                _members += [score, member]
 
         return self.db.zadd(self.key, *_members)
 
