@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import redis
+from redis import StrictRedis
+
+# Uncomment if cluster mode should be enabled
+# from rediscluster.rediscluster import RedisCluster
+
+
+startup_nodes = [
+    {"host": "127.0.0.1", "port": "7000"}
+]
 
 
 class Client(object):
@@ -10,7 +18,9 @@ class Client(object):
                                               'decode_responses': True}
 
     def redis(self):
-        return redis.Redis(**self.connection_settings)
+        return StrictRedis(**self.connection_settings)
+        # Uncomment if cluster mode should be enabled
+        # return RedisCluster(startup_nodes=startup_nodes, max_connections=32, socket_timeout=0.1, decode_responses=True)
 
     def update(self, d):
         self.connection_settings.update(d)

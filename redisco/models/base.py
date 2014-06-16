@@ -365,7 +365,9 @@ class Model(object, metaclass=ModelBase):
             return self._instance_key
 
     def delete(self):
-        """Deletes the object from the datastore."""
+        """
+        Deletes the object from the datastore.
+        """
         pipeline = self.db.pipeline()
         self._delete_from_indices(pipeline)
         self._delete_membership(pipeline)
@@ -675,7 +677,7 @@ class Model(object, metaclass=ModelBase):
             pipeline.sadd(self._indices_key, index)
             descriptor = self.attributes[att]
             score = descriptor.typecast_for_storage(getattr(self, att))
-            pipeline.zadd(zindex, self.id, score)
+            pipeline.zadd(zindex, score, self.id)
             pipeline.sadd(self._zindices_key, zindex)
 
     def _delete_from_indices(self, pipeline):
@@ -781,46 +783,46 @@ def from_key(key):
     return model.objects.get_by_id(id)
 
 
-class Mutex(object):
-    # def __init__(self, instance):
-    #     self.instance = instance
+# class Mutex(object):
+#     # def __init__(self, instance):
+#     #     self.instance = instance
 
-    """Lock concept using blpop, modified from example provided by
-    Apostolis Bessas at https://github.com/mpessas/python-redis-lock/"""
-    def __init__(self, instance, timeout=60):
-        self.instance = instance
-        self._lock_key = instance.key('_lock')
-        self._lock_mutex = instance.key('_mutex')
-        self._timeout = timeout
-        self._init_mutex()
+#     """Lock concept using blpop, modified from example provided by
+#     Apostolis Bessas at https://github.com/mpessas/python-redis-lock/"""
+#     def __init__(self, instance, timeout=60):
+#         self.instance = instance
+#         self._lock_key = instance.key('_lock')
+#         self._lock_mutex = instance.key('_mutex')
+#         self._timeout = timeout
+#         self._init_mutex()
 
-    @property
-    def mutex_key(self):
-        return self._mutex
+#     @property
+#     def mutex_key(self):
+#         return self._mutex
 
-    def lock(self):
-        """Lock and block - using redis blpop functionality.
+#     def lock(self):
+#         """Lock and block - using redis blpop functionality.
 
-        Raises:
-            RuntimeError in the case of synchronization error
-        """
-        res = self.instance.db.blpop(self._lock_mutex, self._timeout)
-        if res is None:
-            raise RuntimeError
+#         Raises:
+#             RuntimeError in the case of synchronization error
+#         """
+#         res = self.instance.db.blpop(self._lock_mutex, self._timeout)
+#         if res is None:
+#             raise RuntimeError
 
-    def unlock(self):
-        self.instance.db.rpush(self._lock_mutex, 1)
+#     def unlock(self):
+#         self.instance.db.rpush(self._lock_mutex, 1)
 
-    def _init_mutex(self):
-        """Use a seperate key to check for the existence of the mutex so that
-        we can utilize getset, which it atomic"""
-        exists = self.instance.db.getset(self._lock_key, 1)
-        if exists is None:
-            self.instance.db.lpush(self._lock_mutex, 1)
+#     def _init_mutex(self):
+#         """Use a seperate key to check for the existence of the mutex so that
+#         we can utilize getset, which it atomic"""
+#         exists = self.instance.db.getset(self._lock_key, 1)
+#         if exists is None:
+#             self.instance.db.lpush(self._lock_mutex, 1)
 
-    def __enter__(self):
-        self.lock()
-        return self
+#     def __enter__(self):
+#         self.lock()
+#         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.unlock()
+#     def __exit__(self, exc_type, exc_value, traceback):
+#         self.unlock()

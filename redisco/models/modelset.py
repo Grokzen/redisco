@@ -206,10 +206,16 @@ class ModelSet(Set):
         ...
         >>> Foo(name="Abba").save()
         True
+        >>> Foo(name="Bbba").save()
+        True
         >>> Foo(name="Zztop").save()
         True
+        >>> Foo.objects.all().order("-name")[0].name
+        'Zztop'
         >>> Foo.objects.all().order("-name").first().name
         'Zztop'
+        >>> Foo.objects.all().order("name")[0].name
+        'Abba'
         >>> Foo.objects.all().order("name").first().name
         'Abba'
         >>> [f.delete() for f in Foo.objects.all()] # doctest: +ELLIPSIS

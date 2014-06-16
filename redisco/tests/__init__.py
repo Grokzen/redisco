@@ -5,8 +5,8 @@ from redisco.tests.performance import PerformanceTestCase
 from redisco.containerstests import (SetTestCase, ListTestCase, TypedListTestCase, SortedSetTestCase, HashTestCase)
 from redisco.models.basetests import (ModelTestCase, DateFieldTestCase, FloatFieldTestCase,
                                       BooleanFieldTestCase, ListFieldTestCase, ReferenceFieldTestCase,
-                                      DateTimeFieldTestCase, CounterFieldTestCase, CharFieldTestCase,
-                                      MutexTestCase)
+                                      DateTimeFieldTestCase, CounterFieldTestCase, CharFieldTestCase,)
+                                      # MutexTestCase)
 
 import redisco
 REDIS_DB = int(os.environ.get('REDIS_DB', 15))  # WARNING TESTS FLUSHDB!!!

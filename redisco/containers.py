@@ -605,7 +605,7 @@ class List(Container):
 
         :return: 1 if the value has been removed, 0 otherwise
         """
-        return self.db.lrem(self.key, value, num)
+        return self.db.lrem(self.key, num, value)
 
     def reverse(self):
         """
